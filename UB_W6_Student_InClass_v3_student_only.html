@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>UB W6 — Student In-Class App</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#f7f5f0;--surface:#fff;--surface2:#f0ede6;--ink:#1a1814;--ink2:#5a5650;--ink3:#9a958e;--accent:#2a4a8a;--accent-light:#e8edf8;--gold:#b07830;--gold-light:#fdf3e3;--green:#2a6a4a;--green-light:#e8f5ee;--red:#8a2a2a;--red-light:#fceaea;--purple:#5a2a8a;--purple-light:#f0e8f8;--border:rgba(26,24,20,.1);--border2:rgba(26,24,20,.06);--r:10px;
+--amos:#2a4a8a;--hosea:#8a2a2a;--isaiah:#b07830;--jeremiah:#2a6a4a;--ezekiel:#5a2a8a}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;font-size:14px;display:flex;flex-direction:column}
+.topbar{background:var(--ink);color:#f7f5f0;padding:0 20px;height:50px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:50}
+.topbar-title{font-family:'Libre Baskerville',serif;font-size:13px;font-weight:700}
+.topbar-sub{font-size:11px;color:rgba(247,245,240,.45);margin-left:12px}
+.lang-btn{background:rgba(247,245,240,.1);border:1px solid rgba(247,245,240,.2);color:#f7f5f0;padding:3px 9px;border-radius:6px;cursor:pointer;font:inherit;font-size:11px;margin-left:5px;transition:.15s}
+.lang-btn.active{background:rgba(247,245,240,.25)}
+.layout{display:flex;flex:1;overflow:hidden}
+.sidebar{width:180px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.sidebar-label{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink3);padding:14px 16px 6px;font-weight:600}
+.prophet-btn{display:flex;align-items:center;gap:10px;padding:10px 16px;border:none;background:none;cursor:pointer;width:100%;text-align:left;font:inherit;font-size:13px;color:var(--ink2);border-left:3px solid transparent;transition:.15s}
+.prophet-btn:hover{background:var(--surface2)}
+.prophet-btn.active{background:var(--accent-light);color:var(--accent);border-left-color:var(--accent);font-weight:500}
+.prophet-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.day-bar{padding:12px 16px;border-top:1px solid var(--border);margin-top:auto}
+.day-label{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink3);margin-bottom:6px;font-weight:600}
+.day-btns{display:flex;gap:6px}
+.day-btn{flex:1;padding:5px;border:1px solid var(--border);background:var(--surface2);border-radius:6px;cursor:pointer;font:inherit;font-size:11px;color:var(--ink2);transition:.15s;text-align:center}
+.day-btn.active{background:var(--accent);color:#f7f5f0;border-color:var(--accent)}
+.main{flex:1;overflow-y:auto;padding:20px}
+.text-header{background:var(--ink);color:#f7f5f0;border-radius:var(--r);padding:16px 18px;margin-bottom:16px}
+.text-ref{font-family:'Libre Baskerville',serif;font-size:18px;font-weight:700;margin-bottom:3px}
+.text-why{font-size:12px;color:rgba(247,245,240,.6);line-height:1.6}
+.stages{display:flex;gap:6px;margin-bottom:16px;overflow-x:auto;scrollbar-width:none}
+.stages::-webkit-scrollbar{display:none}
+.stage-btn{padding:6px 12px;border:1px solid var(--border);background:var(--surface);border-radius:999px;cursor:pointer;font:inherit;font-size:11px;color:var(--ink2);white-space:nowrap;transition:.15s;flex-shrink:0}
+.stage-btn.active{background:var(--accent);color:#f7f5f0;border-color:var(--accent)}
+.stage-btn.done{background:var(--green-light);color:var(--green);border-color:rgba(42,106,74,.2)}
+.stage-panel{display:none}.stage-panel.active{display:block}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:12px;box-shadow:0 1px 4px rgba(26,24,20,.05)}
+.card-label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;font-weight:600;color:var(--ink3);margin-bottom:6px}
+.card-text{font-size:13.5px;color:var(--ink2);line-height:1.75}
+.q-card{background:var(--ink);color:#f7f5f0;border-radius:var(--r);padding:14px 16px;margin-bottom:12px}
+.q-label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;font-weight:600;color:rgba(247,245,240,.5);margin-bottom:6px}
+.q-text{font-size:14px;line-height:1.7;margin-bottom:12px}
+textarea{width:100%;padding:9px 12px;border:1px solid rgba(247,245,240,.2);border-radius:8px;font:inherit;font-size:13px;resize:vertical;min-height:72px;background:rgba(247,245,240,.08);color:#f7f5f0}
+textarea::placeholder{color:rgba(247,245,240,.35)}
+.reveal-btn{margin-top:8px;padding:7px 14px;background:rgba(247,245,240,.15);border:1px solid rgba(247,245,240,.25);color:#f7f5f0;border-radius:7px;cursor:pointer;font:inherit;font-size:12px;transition:.15s;width:100%}
+.reveal-btn:hover{background:rgba(247,245,240,.25)}
+.answer-reveal{display:none;margin-top:10px;padding:12px;background:rgba(247,245,240,.08);border-radius:8px;font-size:13px;line-height:1.7;color:rgba(247,245,240,.85)}
+.answer-reveal.show{display:block}
+.vocab-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;margin-bottom:8px}
+.vocab-word{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:4px}
+.vocab-risk{font-size:12.5px;color:var(--ink2);line-height:1.6}
+.context-card{border-radius:var(--r);padding:12px 14px;margin-bottom:10px;border:1px solid var(--border);background:var(--surface);cursor:pointer;transition:.15s}
+.context-card:hover{border-color:rgba(42,74,138,.3);background:var(--accent-light)}
+.context-card.selected{border-color:rgba(42,74,138,.5);background:var(--accent-light)}
+.context-label{font-size:12px;font-weight:600;color:var(--accent);margin-bottom:4px}
+.context-prompt{font-size:13px;color:var(--ink2);line-height:1.6;margin-bottom:8px}
+.context-input{display:none;width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font:inherit;font-size:13px;resize:vertical;min-height:64px;background:var(--surface2);margin-top:8px}
+.context-card.selected .context-input{display:block}
+.triad-row{display:flex;gap:10px;margin-bottom:14px}
+.triad-box{flex:1;padding:10px 12px;border-radius:var(--r);border:1px solid var(--border2)}
+.triad-box.where{background:var(--accent-light)}
+.triad-box.who{background:var(--green-light)}
+.triad-box.what{background:var(--gold-light)}
+.triad-key{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
+.where .triad-key{color:var(--accent)}
+.who .triad-key{color:var(--green)}
+.what .triad-key{color:var(--gold)}
+.triad-val{font-size:12px;line-height:1.6;color:var(--ink)}
+.timer{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink3);margin-bottom:14px}
+.timer-dot{width:6px;height:6px;border-radius:50%;background:var(--ink3)}
+.nav-row{display:flex;justify-content:space-between;margin-top:16px}
+.nav-btn{padding:8px 16px;border:1px solid var(--border);background:var(--surface2);border-radius:8px;cursor:pointer;font:inherit;font-size:12px;color:var(--ink2);transition:.15s}
+.nav-btn:hover{background:var(--surface);color:var(--ink)}
+.nav-btn.primary{background:var(--accent);color:#f7f5f0;border-color:var(--accent)}
+.nav-btn:disabled{opacity:.4;cursor:not-allowed}
+.en-text{display:block}.ko-text{display:none}
+body.ko .en-text{display:none}
+body.ko .ko-text{display:block}
+
+.guide-hub{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:16px;box-shadow:0 1px 4px rgba(26,24,20,.05)}
+.guide-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px}
+.guide-title{font-family:'Libre Baskerville',serif;font-size:15px;color:var(--ink);font-weight:700}
+.guide-sub{font-size:12px;color:var(--ink3);line-height:1.6}
+.guide-pill{font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:700;color:var(--accent);background:var(--accent-light);border:1px solid rgba(42,74,138,.16);border-radius:999px;padding:4px 8px;white-space:nowrap}
+.guide-nav{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-bottom:12px;padding-bottom:2px}
+.guide-nav::-webkit-scrollbar{display:none}
+.guide-btn{padding:6px 11px;border:1px solid var(--border);background:var(--surface2);border-radius:999px;cursor:pointer;font:inherit;font-size:11px;color:var(--ink2);white-space:nowrap;transition:.15s}
+.guide-btn.active{background:var(--accent);border-color:var(--accent);color:#f7f5f0}
+.guide-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.guide-box{border:1px solid var(--border);border-radius:var(--r);padding:12px 13px;background:var(--surface2)}
+.guide-box.full{grid-column:1/-1}
+.guide-label{font-size:10px;text-transform:uppercase;letter-spacing:.09em;font-weight:700;color:var(--ink3);margin-bottom:5px}
+.guide-box-title{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:5px;line-height:1.45}
+.guide-text{font-size:12.5px;color:var(--ink2);line-height:1.65}
+.guide-list{margin:0;padding-left:18px}
+.guide-list li{font-size:12.5px;color:var(--ink2);line-height:1.65;margin-bottom:5px}
+.guide-callout{background:var(--accent-light);border:1px solid rgba(42,74,138,.18);border-radius:var(--r);padding:12px 13px;margin-bottom:10px}
+.guide-callout.gold{background:var(--gold-light);border-color:rgba(176,120,48,.2)}
+.guide-callout.green{background:var(--green-light);border-color:rgba(42,106,74,.18)}
+.guide-callout.red{background:var(--red-light);border-color:rgba(138,42,42,.18)}
+.guide-callout.purple{background:var(--purple-light);border-color:rgba(90,42,138,.18)}
+.guide-callout .guide-label{margin-bottom:4px}
+.guide-mini{font-size:11.5px;color:var(--ink3);line-height:1.6;margin-top:6px}
+.guide-kv{display:grid;grid-template-columns:120px 1fr;gap:8px 10px;margin-top:8px}
+.guide-kv .k{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink3)}
+.guide-kv .v{font-size:12.5px;color:var(--ink2);line-height:1.6}
+@media(max-width:640px){.guide-grid{grid-template-columns:1fr}.guide-kv{grid-template-columns:1fr}}
+@media(max-width:640px){.sidebar{width:140px}.triad-row{flex-direction:column}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+<div style="display:flex;align-items:center">
+<span class="topbar-title en-text">Understanding the Bible — Week 6</span>
+<span class="topbar-title ko-text">성경의 이해 — 6주차</span>
+<span class="topbar-sub en-text">Latter Prophets · In-Class</span>
+<span class="topbar-sub ko-text">후기예언서 · 수업 중</span>
+</div>
+<div>
+<button class="lang-btn active" id="btnEn" onclick="setLang('en')">EN</button>
+<button class="lang-btn" id="btnKo" onclick="setLang('ko')">한국어</button>
+</div>
+</div>
+
+<div class="layout">
+<div class="sidebar">
+<div class="sidebar-label en-text">Prophets</div>
+<div class="sidebar-label ko-text">예언서</div>
+<button class="prophet-btn active" onclick="selectProphet('amos')"><span class="prophet-dot" style="background:var(--amos)"></span><span class="en-text">Amos</span><span class="ko-text">아모스</span></button>
+<button class="prophet-btn" onclick="selectProphet('hosea')"><span class="prophet-dot" style="background:var(--hosea)"></span><span class="en-text">Hosea</span><span class="ko-text">호세아</span></button>
+<button class="prophet-btn" onclick="selectProphet('isaiah')"><span class="prophet-dot" style="background:var(--isaiah)"></span><span class="en-text">Isaiah</span><span class="ko-text">이사야</span></button>
+<button class="prophet-btn" onclick="selectProphet('jeremiah')"><span class="prophet-dot" style="background:var(--jeremiah)"></span><span class="en-text">Jeremiah</span><span class="ko-text">예레미야</span></button>
+<button class="prophet-btn" onclick="selectProphet('ezekiel')"><span class="prophet-dot" style="background:var(--ezekiel)"></span><span class="en-text">Ezekiel</span><span class="ko-text">에스겔</span></button>
+<div class="day-bar">
+<div class="day-label en-text">Session</div>
+<div class="day-label ko-text">수업일</div>
+<div class="day-btns">
+<button class="day-btn active" id="dayTue" onclick="selectDay('tuesday')"><span class="en-text">Tue</span><span class="ko-text">화</span></button>
+<button class="day-btn" id="dayFri" onclick="selectDay('friday')"><span class="en-text">Fri</span><span class="ko-text">금</span></button>
+</div>
+</div>
+</div>
+
+<div class="main" id="mainArea"></div>
+</div>
+
+<script>
+var state = {prophet:'amos', day:'tuesday', stage:0, lang:'en', guide:'workflow', revealed:{}, selectedCtx:{}};
+
+var texts = {
+amos:{
+tuesday:{
+ref_en:"Amos 3:2",ref_ko:"아모스 3:2",
+why_en:"This verse performs the central theological revolution of Amos: election increases accountability, not privilege.",
+why_ko:"이 구절은 아모스의 핵심 신학적 혁명을 수행한다: 선택은 특권이 아니라 책임을 증가시킨다.",
+hist_en:"Mid-8th century BCE. Assyrian expansion, economic inequality, syncretism with Baalism — a kairos convergence of fault lines.",
+hist_ko:"기원전 8세기 중반. 앗수르의 팽창, 경제적 불평등, 바알 숭배와의 혼합주의 — 위기의 카이로스적 수렴.",
+lit_en:"Amos traps the audience with oracles against surrounding nations before turning the prophetic indictment upon Israel in 2:6–16.",
+lit_ko:"아모스는 먼저 주변 민족들에 대한 신탁으로 청중을 함정에 빠뜨린 후 2:6–16에서 이스라엘 자체를 향해 예언적 기소를 돌린다.",
+cult_en:"Amos operates from a GUEST position — a Judean shepherd speaking to Northern elites, giving him critical distance from patronage systems.",
+cult_ko:"아모스는 게스트 위치에서 작동한다 — 북이스라엘 엘리트에게 말하는 유다 출신 목자로, 후원 시스템으로부터 비판적 거리를 갖는다.",
+exe_en:"What does 'Only you have I known from all the families of the earth' mean for Israel's status before YHWH?",
+exe_ko:"'땅의 모든 족속 중에 오직 너희만 내가 알았나니'는 YHWH 앞에서 이스라엘의 지위에 대해 무엇을 의미하는가?",
+exeA_en:"The word 'known' (יָדַעְתִּי) carries covenantal intimacy. But the 'therefore' (עַל-כֵּן) reverses every expected conclusion: instead of securing immunity, election INCREASES judgment for iniquity. Collins: chosen = accountable, not protected.",
+exeA_ko:"'알았다'(יָדַעְתִּי)는 언약적 친밀함을 담는다. 그러나 '그러므로'(עַל-כֵּן)는 모든 예상된 결론을 역전시킨다: 면역을 확보하는 대신, 선택은 죄에 대한 심판을 증가시킨다. 콜린스: 선택됨 = 책임있음, 보호받음이 아니다.",
+her_en:"What does it mean for a community today to claim divine blessing or chosenness?",
+her_ko:"오늘날 공동체가 신적 축복이나 선택됨을 주장한다는 것은 무엇을 의미하는가?",
+herA_en:"Communities that use divine election as a guarantee of protection enact the same structural error as Israel. Brueggemann: YHWH's redemptive action is not Israel's private property. Any community using blessing-language to secure privilege rather than responsibility has imported the pre-Amos theology Amos is dismantling.",
+herA_ko:"신적 선택을 보호의 보증으로 사용하는 공동체들은 이스라엘과 같은 구조적 오류를 범한다. 브루그만: YHWH의 구원적 행동은 이스라엘의 사유 재산이 아니다.",
+triad:{where_en:"Israel stands in apparent prosperity — but structurally in a collapsing covenant space.",where_ko:"이스라엘은 겉보기에 번영 속에 서 있지만 — 구조적으로는 무너지는 언약 공간 안에 있다.",who_en:"Israel is becoming a community that confuses election with exemption.",who_ko:"이스라엘은 선택을 면제로 혼동하는 공동체가 되고 있다.",what_en:"The community is called to reorient: election as increased accountability, not secured privilege.",what_ko:"공동체는 재정향하도록 부름받는다: 선택은 확보된 특권이 아니라 증가된 책임이다."},
+vocab:[
+{w_en:"Known / 알다",r_en:"May import psychological intimacy without covenantal weight. Ask: what obligations does YHWH's 'knowing' a nation create?",r_ko:"언약적 무게 없이 심리적 친밀함을 가져올 수 있다. 물어라: YHWH가 한 민족을 '안다'는 것은 어떤 의무를 만드는가?"},
+{w_en:"Therefore / 그러므로",r_en:"Students expect this to introduce privilege. The reversal is the theological shock.",r_ko:"학생들은 이것이 특권을 소개하기를 기대한다. 역전이 신학적 충격이다."},
+{w_en:"Chosen / 선택",r_en:"Likely to carry church/personal salvation connotations. Ask: is this about personal salvation, or structural accountability?",r_ko:"교회/개인 구원 함의를 담을 가능성이 높다. 물어라: 이것은 개인 구원인가, 아니면 구조적 책임에 관한 것인가?"},
+{w_en:"Punish / 벌하다",r_en:"May import arbitrary divine anger. Ask: is the punishment arbitrary, or structurally demanded?",r_ko:"자의적인 신적 분노를 가져올 수 있다. 물어라: 심판이 자의적인가, 아니면 구조적으로 요구되는가?"}
+],
+contexts:[
+{l_en:"Church claiming God's blessing on its programs",l_ko:"하나님의 축복을 주장하는 교회",p_en:"A church invokes divine election to justify its priorities and resist prophetic critique. What does Amos 3:2 say to communities that use blessing-language to secure institutional immunity?",p_ko:"교회가 신적 선택을 사용하여 자신의 우선순위를 정당화하고 예언적 비판에 저항한다. 아모스 3:2는 이 공동체에게 무엇을 말하는가?"},
+{l_en:"Nation claiming divine favor",l_ko:"신적 호의를 주장하는 국가",p_en:"A nation claims special divine favor to justify its foreign policy. What does the 'therefore I will punish you' logic say about claimed election and structural accountability?",p_ko:"국가가 외교 정책을 정당화하기 위해 특별한 신적 호의를 주장한다. '그러므로 내가 벌하리라'의 논리는 무엇을 말하는가?"},
+{l_en:"Student who feels spiritually privileged",l_ko:"영적 특권을 느끼는 학생",p_en:"A student believes their faith background gives them interpretive advantage. What does Amos 3:2 say about the structural demand that comes with formation privilege?",p_ko:"학생이 자신의 신앙 배경이 해석적 이점을 준다고 믿는다. 아모스 3:2는 형성적 특권과 함께 오는 구조적 요구에 대해 무엇을 말하는가?"}
+]
+},
+friday:{
+ref_en:"Amos 5:21-24",ref_ko:"아모스 5:21-24",
+why_en:"YHWH explicitly rejects Israel's worship — festivals, offerings, and music — because they are structurally divorced from justice.",
+why_ko:"YHWH는 이스라엘의 예배 — 절기, 제물, 음악을 포함하여 — 를 구조적으로 정의와 분리되어 있기 때문에 명시적으로 거부한다.",
+hist_en:"8th century BCE. Israel's religious life is flourishing externally while the poor are being crushed. Religious performance is being used as a substitute for covenant fidelity.",
+hist_ko:"기원전 8세기. 이스라엘의 종교적 삶은 외적으로 번성하고 있지만 가난한 자들은 짓눌리고 있다.",
+lit_en:"Divine speech in first person intensifies the rejection: 'I hate, I despise, I will not accept.' Three parallel rejections before the positive demand.",
+lit_ko:"1인칭 신적 말씀이 거부를 강화한다: '내가 미워하며, 내가 멸시하며, 내가 받지 아니하리라.' 긍정적 요구 전에 세 가지 병렬 거부.",
+cult_en:"Amos operates as GUEST — outsider speaking from outside the patronage system. The sacrificial system is the institutional religion of the ruling class.",
+cult_ko:"아모스는 게스트로 작동한다 — 후원 시스템 밖에서 말하는 외부인. 희생 체계는 지배 계급의 제도적 종교이다.",
+exe_en:"Why does YHWH reject Israel's religious performances, and what is the connection between worship and justice?",
+exe_ko:"YHWH는 왜 이스라엘의 종교적 수행을 거부하며, 예배와 정의의 연결은 무엇인가?",
+exeA_en:"YHWH's rejection is categorical — it exhausts Israel's entire religious repertoire. The rejection is not about sincerity but structural arrangement: religious performance creates a false kairos experience (⚡ KAIROS THEFT) that substitutes ritual satisfaction for the covenant demand of mishpat and tsedaqah.",
+exeA_ko:"YHWH의 거부는 범주적이다 — 이스라엘의 모든 종교적 레퍼토리를 소진한다. 거부는 진정성이 아니라 구조적 배열에 관한 것이다: 종교적 수행이 거짓 카이로스 경험(⚡ KAIROS THEFT)을 만들어낸다.",
+her_en:"Can sincere worship coexist with structural injustice? What does this text demand of worshiping communities?",
+her_ko:"진정한 예배가 구조적 불의와 공존할 수 있는가? 이 본문은 예배하는 공동체에게 무엇을 요구하는가?",
+herA_en:"The text refuses the separation of worship and justice. YHWH actively hates worship that doesn't produce structural justice. Brueggemann: religious systems that maintain exploitation while providing the powerful a sense of divine favor are performing ⚡ KAIROS THEFT.",
+herA_ko:"본문은 예배와 정의의 분리를 거부한다. YHWH는 구조적 정의를 생산하지 않는 예배를 적극적으로 미워한다.",
+triad:{where_en:"The sanctuary is the site of YHWH's rejection, not approval.",where_ko:"성소는 YHWH의 거부의 자리이다.",who_en:"Israel is becoming a people who use worship to secure religious completion without covenant transformation.",who_ko:"이스라엘은 언약적 변화 없이 종교적 완성을 확보하기 위해 예배를 사용하는 백성이 되고 있다.",what_en:"The community is called to let justice flow structurally — not as occasional act but as ever-flowing stream.",what_ko:"공동체는 정의가 구조적으로 흐르도록 부름받는다."},
+vocab:[
+{w_en:"Hate / 미워하다",r_en:"Strong divine emotion may be softened. Ask: is YHWH's hatred here emotional or structural? What is being rejected?",r_ko:"강한 신적 감정이 완화될 수 있다. 물어라: 여기서 YHWH의 미움은 감정적인가 구조적인가?"},
+{w_en:"Justice / 공의 (mishpat)",r_en:"May import legal categories only. Ask: mishpat as structural arrangement — what gives each person their proper place?",r_ko:"법적 범주만 가져올 수 있다. 물어라: 구조적 배열로서의 미쉬파트 — 무엇이 각 사람에게 그들의 적절한 자리를 주는가?"},
+{w_en:"Righteousness / 의 (tsedaqah)",r_en:"May import individual moral virtue. Ask: tsedaqah as rightness of relationship — what makes the community's relational field generative?",r_ko:"개인적 도덕적 덕을 가져올 수 있다. 물어라: 관계의 올바름으로서의 체다카."},
+{w_en:"Worship / 예배",r_en:"Students may defend worship as inherently good. Ask: when does worship become a substitute for justice rather than its expression?",r_ko:"학생들이 예배를 본질적으로 좋은 것으로 방어할 수 있다. 물어라: 언제 예배가 정의의 표현이 아닌 대체물이 되는가?"}
+],
+contexts:[
+{l_en:"Megachurch with worship but no justice ministry",l_ko:"정의 사역 없이 예배를 드리는 대형 교회",p_en:"A large church with excellent music and high attendance has no engagement with the poor in its neighborhood. What does Amos 5:21-24 say to this community?",p_ko:"훌륭한 음악과 높은 출석률을 가진 대형 교회가 근처 가난한 자들과의 관계가 없다. 아모스 5:21-24는 이 공동체에게 무엇을 말하는가?"},
+{l_en:"Student who finds worship meaningful but avoids justice work",l_ko:"예배는 의미있지만 정의 사역을 피하는 학생",p_en:"A student experiences genuine emotional connection in worship but has never engaged structural injustice. What does YHWH's rejection of Israel's worship say to them?",p_ko:"학생이 예배에서 진정한 감정적 연결을 경험하지만 구조적 불의에 참여한 적이 없다."},
+{l_en:"Community using religion to avoid social engagement",l_ko:"사회적 참여를 피하기 위해 종교를 사용하는 공동체",p_en:"A Christian community in a context of racial or economic injustice focuses intensively on internal religious life. What is Amos 5:21-24's structural diagnosis?",p_ko:"인종적 또는 경제적 불의의 맥락에 있는 기독교 공동체가 내부 종교 생활에 집중한다."}
+]
+}
+},
+hosea:{
+tuesday:{
+ref_en:"Hosea 11:8-9",ref_ko:"호세아 11:8-9",
+why_en:"The most theologically radical moment in the Latter Prophets — God as wounded lover who refuses to abandon despite covenant rupture.",
+why_ko:"후기예언서에서 가장 신학적으로 급진적인 순간 — 언약 파열에도 불구하고 포기하기를 거부하는 상처받은 연인으로서의 하나님.",
+hist_en:"8th century BCE Northern Israel. Baal worship has replaced covenant fidelity. Israel has been structurally unfaithful across multiple generations.",
+hist_ko:"기원전 8세기 북이스라엘. 바알 숭배가 언약적 신실함을 대체했다. 이스라엘은 여러 세대에 걸쳐 구조적으로 불신실했다.",
+lit_en:"Chapter 11 shifts from covenant lawsuit to divine soliloquy — God speaking to God's own heart. The rhetoric mimics a parent/spouse who cannot let go.",
+lit_ko:"11장은 언약 소송에서 신적 독백으로 전환된다 — 하나님이 자신의 마음에게 말한다.",
+cult_en:"Divine pathos is theologically unprecedented in ANE religion. Other gods are unmoved movers. YHWH's anguish is the sign of genuine relational engagement.",
+cult_ko:"신적 파토스는 고대 근동 종교에서 신학적으로 전례가 없다. 다른 신들은 움직임 없는 원동자이다.",
+exe_en:"What does YHWH's self-questioning ('How can I give you up?') reveal about the nature of divine holiness?",
+exe_ko:"YHWH의 자문자답('내가 어찌 너를 버리겠느냐?')은 신적 거룩함의 본질에 대해 무엇을 드러내는가?",
+exeA_en:"YHWH's holiness (קְדֹשׁ) here is expressed not as distance but as the refusal to allow structural destruction to have the last word. The divine heart 'recoils' (נֶהְפַּךְ). Brueggemann's 'divine pathos': God is genuinely moved, genuinely wounded. The Holy One remains 'in your midst' — not absent despite betrayal.",
+exeA_ko:"YHWH의 거룩함(קְדֹשׁ)은 여기서 거리로서가 아니라 구조적 파괴가 마지막 말이 되는 것을 거부하는 것으로 표현된다. 신적 마음이 '돌이켜진다'(נֶהְפַּךְ).",
+her_en:"What does it mean that God stays in relationship despite betrayal? What does this demand of human communities?",
+her_ko:"하나님이 배신에도 불구하고 관계 안에 머무른다는 것은 무엇을 의미하는가?",
+herA_en:"The text reframes holiness: not separation from the unfaithful but refusal to let separation be final. For communities: is staying in relationship always holy gestation, or can it become structural freezing? Divine pathos is not passivity; it is the active refusal to close the Matrix Space.",
+herA_ko:"본문은 거룩함을 재구성한다: 불신실한 자들로부터의 분리가 아니라 분리가 최종적이 되도록 허락하기를 거부하는 것이다.",
+triad:{where_en:"Israel is in covenant rupture — yet YHWH's presence remains in the midst.",where_ko:"이스라엘은 언약 파열 안에 있다 — 그러나 YHWH의 임재는 그들 가운데 남아있다.",who_en:"YHWH revealed as the Holy One-in-the-midst: not the distant judge but the wounded lover who stays.",who_ko:"YHWH는 그들 가운데 계신 거룩한 이로 계시된다: 머무는 상처받은 연인.",what_en:"The community is called to encounter a God whose holiness expresses itself as relational fidelity.",what_ko:"공동체는 자신의 거룩함을 관계적 신실함으로 표현하는 하나님과 만나도록 부름받는다."},
+vocab:[
+{w_en:"Holy One / 거룩하신 이",r_en:"May import ritual purity. Ask: what does 'Holy One in your midst' mean if holiness stays present with the unfaithful?",r_ko:"의식적 순결을 가져올 수 있다. 물어라: '네 가운데 계신 거룩한 이'는 무엇을 의미하는가?"},
+{w_en:"Give up / 포기하다",r_en:"May be read as sentimental. Ask: what would it cost YHWH to give up Ephraim? What structural consequence is refused?",r_ko:"감상적으로 읽힐 수 있다. 물어라: 에브라임을 포기하는 것은 YHWH에게 무엇을 의미하는가?"},
+{w_en:"Heart recoils / 마음이 돌이켜",r_en:"May be read as emotional volatility. Ask: what is the theological significance of God's heart changing direction?",r_ko:"감정적 변동성으로 읽힐 수 있다. 물어라: 하나님의 마음이 방향을 바꾼다는 신학적 의미는?"},
+{w_en:"Mortal / 사람",r_en:"May be read as God being more lenient than humans. Ask: what is the structural difference between human and divine responses to betrayal?",r_ko:"하나님이 인간보다 더 너그럽다고 읽힐 수 있다. 물어라: 배신에 대한 인간적 반응과 신적 반응 사이의 구조적 차이는?"}
+],
+contexts:[
+{l_en:"Community sustaining relationship with the persistently unfaithful",l_ko:"지속적으로 불신실한 자와의 관계를 유지하는 공동체",p_en:"A church maintains relationship with a member who has repeatedly betrayed trust. When does staying become holy gestation, and when does it become structural freezing?",p_ko:"교회가 반복적으로 신뢰를 배신한 구성원과의 관계를 유지한다. 언제 머무는 것이 거룩한 잉태가 되고, 언제 구조적 동결이 되는가?"},
+{l_en:"Student who has experienced parental abandonment",l_ko:"부모에게 버림받은 경험이 있는 학생",p_en:"A student whose parent abandoned them reads Hosea 11:8-9. What does the divine refusal to abandon say to someone whose experience is of human abandonment?",p_ko:"부모에게 버림받은 학생이 호세아 11:8-9를 읽는다. 포기하기를 거부하는 신적 거부는 인간에게 버림받은 경험을 가진 사람에게 무엇을 말하는가?"},
+{l_en:"Theology student who views holiness as separation",l_ko:"거룩함을 분리로 보는 신학 학생",p_en:"A student understands holiness as God's separation from sin. How does Hosea 11:8-9's 'Holy One in your midst' challenge or expand that framework?",p_ko:"학생이 거룩함을 죄로부터의 하나님의 분리로 이해한다. 호세아 11:8-9의 '네 가운데 계신 거룩한 이'는 그 틀을 어떻게 도전하는가?"}
+]
+},
+friday:{
+ref_en:"Hosea 2:14-15",ref_ko:"호세아 2:14-15",
+why_en:"YHWH's response to Israel's betrayal is not punishment but return to wilderness — the generative Matrix Space of the original covenant.",
+why_ko:"배신에 대한 YHWH의 반응은 처벌이 아니라 광야로의 귀환이다 — 원래 언약의 생성적 매트릭스 공간.",
+hist_en:"Northern Israel, 8th century BCE. Baal worship has replaced YHWH worship. Israel exchanged covenant intimacy for Canaanite fertility religion.",
+hist_ko:"기원전 8세기 북이스라엘. 바알 숭배가 YHWH 예배를 대체했다.",
+lit_en:"Hosea 2 shifts from indictment (vv.2-13) to restoration (vv.14-23). YHWH takes initiative — 'I will allure her' — reversing the direction of the relational field.",
+lit_ko:"호세아 2장은 기소(2-13절)에서 회복(14-23절)으로 전환된다. YHWH가 주도권을 잡는다 — '내가 그를 유혹하여'.",
+cult_en:"The wilderness (hammidbar) held deep cultural memory: the original site of covenant intimacy (Exodus), before the corruptions of Canaan and settlement.",
+cult_ko:"광야(함미드바르)는 깊은 문화적 기억을 담고 있었다: 언약 친밀함의 원래 자리(출애굽), 가나안과 정착의 부패 이전.",
+exe_en:"Why does YHWH return Israel to the wilderness, and what happens there?",
+exe_ko:"YHWH는 왜 이스라엘을 광야로 돌려보내며, 거기서 무슨 일이 일어나는가?",
+exeA_en:"The wilderness is the generative Matrix Space: it strips away false securities (Baal fertility, political alliances) to expose the naked relational field where new identity can gestate. YHWH 'speaks tenderly to her heart' — intimate, not punitive speech. Anderson: wilderness = original covenant formation, before distortions of settlement.",
+exeA_ko:"광야는 생성적 매트릭스 공간이다: 거짓 안전을 벗겨내어 새로운 정체성이 잉태될 수 있는 적나라한 관계적 장을 노출시킨다.",
+her_en:"What does it mean to be drawn into a place of stripping-away as an act of divine love rather than punishment?",
+her_ko:"처벌이 아닌 신적 사랑의 행위로서 벗겨지는 자리로 이끌린다는 것은 무엇을 의미하는가?",
+herA_en:"The text reframes disruption and loss. Seasons of stripping-away — loss of false securities, comfortable structures — are not necessarily punishment but potentially the generative wilderness where covenant renewal can occur. Is this wilderness holy gestation or structural abandonment?",
+herA_ko:"본문은 혼란과 상실을 재구성한다. 벗겨짐의 계절들은 반드시 신적 처벌이 아니라 언약 갱신이 일어날 수 있는 생성적 광야일 수 있다.",
+triad:{where_en:"The wilderness — the original site of covenant formation, stripped of false securities.",where_ko:"광야 — 거짓 안전이 벗겨진 언약 형성의 원래 자리.",who_en:"Israel moving from faithless spouse through YHWH's unilateral initiative toward renewed covenant intimacy.",who_ko:"이스라엘이 불신실한 배우자에서 새로워진 언약적 친밀함을 향해 나아가는 중.",what_en:"The community is invited into the generative stripping-away that precedes authentic new covenant formation.",what_ko:"공동체는 진정한 새 언약 형성에 앞서 오는 생성적 벗겨짐으로 초대된다."},
+vocab:[
+{w_en:"Allure / 유혹하다",r_en:"May import manipulative connotation. Ask: what is the difference between alluring and coercing?",r_ko:"조종적 함의를 가져올 수 있다. 물어라: 유혹과 강요의 차이는 무엇인가?"},
+{w_en:"Wilderness / 광야",r_en:"May import punishment/hardship only. Ask: what is the wilderness in Exodus — is it punishment or formation?",r_ko:"처벌/고난만 가져올 수 있다. 물어라: 출애굽에서 광야는 처벌의 자리인가 형성의 자리인가?"},
+{w_en:"Speak tenderly / 부드럽게 말하다",r_en:"May be read as sentimental. Ask: what is the content of YHWH's tender speech — comfort or renewed covenant demand?",r_ko:"감상적 안심으로 읽힐 수 있다. 물어라: YHWH의 부드러운 말씀의 내용은 위로인가 갱신된 언약적 요구인가?"},
+{w_en:"Respond / 응답하다",r_en:"May import passive reception. Ask: what kind of response is Israel being invited to?",r_ko:"수동적 수용을 가져올 수 있다. 물어라: 이스라엘은 어떤 종류의 응답으로 초대되고 있는가?"}
+],
+contexts:[
+{l_en:"Person experiencing a season of stripping-away",l_ko:"벗겨짐의 계절을 경험하는 사람",p_en:"A student has lost their ministry position, their certainty, their comfortable faith community. Is this wilderness divine punishment or generative Matrix Space?",p_ko:"학생이 사역 직위, 확실성, 편안한 신앙 공동체를 잃었다. 이것이 신적 처벌인가 생성적 매트릭스 공간인가?"},
+{l_en:"Church forced to simplify by external circumstances",l_ko:"외부 환경에 의해 단순화가 강요된 교회",p_en:"A church loses its building, programs, and budget. What does YHWH's wilderness speech say to communities in involuntary simplification?",p_ko:"교회가 건물, 프로그램, 예산을 잃는다. YHWH의 광야 말씀은 비자발적 단순화 속의 공동체에게 무엇을 말하는가?"},
+{l_en:"Community that has accommodated to cultural comfort",l_ko:"문화적 편안함에 수용된 공동체",p_en:"A church has grown comfortable with cultural accommodations. What would it mean for this community to be 'allured to the wilderness'?",p_ko:"교회가 사회적 맥락의 문화적 수용에 편안해졌다. 이 공동체가 '광야로 유혹받는다'는 것은 무엇을 의미하는가?"}
+]
+}
+},
+isaiah:{
+tuesday:{
+ref_en:"Isaiah 6:1-8",ref_ko:"이사야 6:1-8",
+why_en:"The Throne Vision is the authorization framework for all of Isaiah's prophetic speech — and a paradigm of Matrix Space encounter with the Holy One.",
+why_ko:"왕좌 환상은 이사야의 모든 예언적 말씀에 대한 권위 부여의 틀이다.",
+hist_en:"742 BCE — the year King Uzziah died. Political instability. Isaiah encounters YHWH at the moment of national crisis.",
+hist_ko:"기원전 742년 — 웃시야 왕이 죽은 해. 정치적 불안정. 이사야는 국가적 위기의 순간에 YHWH를 만난다.",
+lit_en:"Chapter 6 is the commissioning narrative — the divine council scene where Isaiah receives his prophetic mandate. It provides retrospective authorization for everything that precedes and follows.",
+lit_ko:"6장은 위임 서사이다 — 이사야가 예언적 명령을 받는 신적 회의 장면.",
+cult_en:"The divine council (Sod YHWH) is an ANE concept: the heavenly court from which divine decrees are issued. The prophet's authority comes from standing in this council.",
+cult_ko:"신적 회의(Sod YHWH)는 고대 근동의 개념이다: 신적 칙령이 발포되는 하늘 법정.",
+exe_en:"What transforms Isaiah from a 'man of unclean lips' into YHWH's messenger?",
+exe_ko:"무엇이 이사야를 '입술이 부정한 사람'에서 YHWH의 사자로 변화시키는가?",
+exeA_en:"The transformation is structural — not psychological improvement but ontological encounter. Isaiah enters as a guilty observer ('I am ruined — נִדְמֵיתִי'), is undone, purified by the seraph's coal, and commissioned. Matrix Space logic: undoing → purification → commissioning (new WHO established).",
+exeA_ko:"변화는 구조적이다 — 심리적 개선이 아니라 존재론적 만남. 이사야는 죄책감 있는 관찰자로 들어가 해체되고, 정화되고, 위임된다.",
+her_en:"What does genuine encounter with divine holiness require of the person or community encountered?",
+her_ko:"신적 거룩함과의 진정한 만남은 만남을 받는 사람이나 공동체에게 무엇을 요구하는가?",
+herA_en:"Authentic commission requires prior undoing. Those who claim prophetic authority without having been undone have bypassed the Matrix Space that generates genuine authorization. The coal on the lips is not comfortable. Formation cannot be manufactured; it requires genuine encounter with the Holy One.",
+herA_ko:"진정한 위임은 이전 해체를 필요로 한다. '나는 망했다'의 순간을 통과하지 않고 예언적 권위를 주장하는 자들은 거짓 권위를 행사하고 있다.",
+triad:{where_en:"The Temple becomes the site of a divine encounter that transcends and critiques the institution itself.",where_ko:"성전이 제도 자체를 초월하고 비판하는 신적 만남의 자리가 된다.",who_en:"Isaiah moves from 'man of unclean lips' to commissioned covenant messenger.",who_ko:"이사야는 '부정한 입술을 가진 사람'에서 위임된 언약 사자로 나아간다.",what_en:"The community is called to undergo the undoing that precedes genuine commission.",what_ko:"공동체는 진정한 위임에 앞서 오는 해체를 받아들이도록 부름받는다."},
+vocab:[
+{w_en:"Ruined / 망하다",r_en:"May be read as excessive self-deprecation. Ask: what structural condition is Isaiah naming about his actual condition?",r_ko:"과도한 자기 비하로 읽힐 수 있다. 물어라: 이사야는 자신의 실제 상태에 대해 어떤 구조적 상태를 명명하고 있는가?"},
+{w_en:"Holy / 거룩한",r_en:"Most likely to carry ritual purity connotations. Ask: what does 'Holy, holy, holy' mean when the whole earth is full of YHWH's glory?",r_ko:"의식적 순결 함의를 가질 가능성이 가장 높다. 물어라: '거룩, 거룩, 거룩'은 온 땅이 YHWH의 영광으로 가득한 맥락에서 무엇을 의미하는가?"},
+{w_en:"Unclean lips / 부정한 입술",r_en:"May be read as speech habits. Ask: what structural condition do 'unclean lips' name for a prophet who must speak to a resistant people?",r_ko:"말하기 습관으로 읽힐 수 있다. 물어라: '부정한 입술'은 저항하는 백성에게 말해야 할 예언자에게 어떤 구조적 상태를 명명하는가?"},
+{w_en:"Send me / 나를 보내소서",r_en:"May be read as heroic volunteerism. Ask: what has happened to Isaiah before he says 'send me'?",r_ko:"영웅적 자원봉사로 읽힐 수 있다. 물어라: '나를 보내소서' 전에 이사야에게 무슨 일이 일어났는가?"}
+],
+contexts:[
+{l_en:"Leader who claims prophetic authority without having been undone",l_ko:"해체를 겪지 않고 예언적 권위를 주장하는 지도자",p_en:"A church leader speaks with prophetic confidence but shows no sign of having passed through the 'I am ruined' moment. What does Isaiah 6 say about genuine prophetic authorization?",p_ko:"교회 지도자가 예언적 확신으로 말하지만 '나는 망했다'의 순간을 통과했다는 징조를 보이지 않는다."},
+{l_en:"Student discerning a call to ministry",l_ko:"사역 소명을 분별하는 학생",p_en:"A student feels called to ministry and is excited about the commission. What does Isaiah 6's sequence say about what must precede genuine commission?",p_ko:"학생이 사역으로의 소명을 느끼고 위임에 대해 흥분한다. 이사야 6장의 순서는 진정한 위임에 무엇이 선행되어야 하는지에 대해 무엇을 말하는가?"},
+{l_en:"Community that has institutionalized its prophetic identity",l_ko:"예언적 정체성을 제도화한 공동체",p_en:"A church has built its identity around being prophetic. Has the institution replaced the encounter? What would it mean for this community to be 'undone' again?",p_ko:"교회가 예언적이라는 것을 중심으로 정체성을 구축했다. 제도가 만남을 대체했는가?"}
+]
+},
+friday:{
+ref_en:"Isaiah 1:10-17",ref_ko:"이사야 1:10-17",
+why_en:"The structural justice diagnostic: Jerusalem's leaders are named 'rulers of Sodom' — not for sexual sin but for violence against the widow, orphan, and oppressed.",
+why_ko:"구조적 정의 진단: 예루살렘의 지도자들이 '소돔의 관원들'이라 불린다 — 성적 죄가 아닌 과부, 고아, 억압받는 자에 대한 폭력 때문에.",
+hist_en:"8th century BCE Jerusalem. Economic inequality and land monopolization are producing structural injustice while the religious system functions normally.",
+hist_ko:"기원전 8세기 예루살렘. 경제적 불평등과 토지 독점이 구조적 불의를 만들어내고 있다.",
+lit_en:"Chapter 1 is the canonical introduction to the entire book — the indictment that frames everything. YHWH addresses Jerusalem directly as 'rulers of Sodom.'",
+lit_ko:"1장은 전체 책에 대한 정경적 서론이다 — 이후에 오는 모든 것을 틀 지우는 기소.",
+cult_en:"Sodom was the paradigmatic case of structural violence against the vulnerable. Using this name for Jerusalem is the most radical possible indictment.",
+cult_ko:"소돔은 취약자에 대한 구조적 폭력의 패러다임적 경우였다. 이 이름을 예루살렘에 사용하는 것은 가능한 가장 급진적인 기소이다.",
+exe_en:"Why does YHWH call Jerusalem's leaders 'rulers of Sodom,' and what is the connection between worship and sin?",
+exe_ko:"YHWH는 왜 예루살렘의 지도자들을 '소돔의 관원들'이라 부르며, 예배와 죄의 연결은 무엇인가?",
+exeA_en:"The indictment is structural, not moral-individual. The 'rulers of Sodom' label targets violence against the widow, orphan, and oppressed (v.17). The religious system (sacrifices, new moons, sabbaths) is functioning to maintain rather than challenge structural violence. ✗ CLOSED WOMB. YHWH's demand is structural: 'seek justice, rescue the oppressed, defend the orphan, plead for the widow.'",
+exeA_ko:"기소는 도덕적-개인적이 아닌 구조적이다. '소돔의 관원들' 표식은 과부, 고아, 억압받는 자에 대한 폭력을 대상으로 한다. YHWH의 요구는 구조적이다: '공의를 구하며, 억압당하는 자를 도와주며.'",
+her_en:"What structural arrangements in contemporary communities might receive the same indictment?",
+her_ko:"현대 공동체에서 어떤 구조적 배열이 같은 기소를 받을 수 있는가?",
+herA_en:"The text offers a structural diagnostic: any religious system that functions to maintain exclusion of the vulnerable while providing the powerful with divine approval is enacting ✗ CLOSED WOMB. The test is not sincerity of belief but structural effect: is the institution producing justice for the widow, orphan, and foreigner?",
+herA_ko:"본문은 구조적 진단을 제공한다: 권력자에게 신적 승인의 감각을 제공하면서 취약자의 배제를 유지하기 위해 기능하는 모든 종교 시스템은 ✗ CLOSED WOMB를 실행하고 있다.",
+triad:{where_en:"Jerusalem — the center of religious and political power — is the site of YHWH's sharpest indictment.",where_ko:"예루살렘 — 종교적, 정치적 권력의 중심 — 이 YHWH의 가장 날카로운 기소의 자리이다.",who_en:"Jerusalem's leaders are becoming 'rulers of Sodom' — using power to maintain structural exclusion.",who_ko:"예루살렘의 지도자들은 '소돔의 관원들'이 되고 있다 — 권력을 사용하여 구조적 배제를 유지하는 자들.",what_en:"The community is called to specific, embodied structural action: seek justice, rescue, defend, plead.",what_ko:"공동체는 구체적, 구현된 구조적 행동으로 부름받는다: 공의를 구하며, 억압당하는 자를 도와주며, 고아의 송사를 변호하며."},
+vocab:[
+{w_en:"Rulers of Sodom / 소돔의 관원",r_en:"Almost certainly triggers sexual sin associations. Ask: what was Sodom's sin — sexual, or use of power against the vulnerable?",r_ko:"거의 확실히 성적 죄 연상을 촉발한다. 물어라: 소돔의 죄는 성적인가, 아니면 취약자에 대한 권력 사용인가?"},
+{w_en:"Offerings / 제물",r_en:"May be read as insufficient quantity. Ask: is YHWH demanding better sacrifice, or the end of sacrifice as substitute for justice?",r_ko:"불충분한 제물 양으로 읽힐 수 있다. 물어라: YHWH는 더 나은 제물을 요구하는가 아니면 정의의 대체물로서의 제물의 종료를 요구하는가?"},
+{w_en:"Seek justice / 공의를 구하라",r_en:"May be read as individual virtue. Ask: what structural actions does Isaiah 1:17 require — active rescue, defense, legal advocacy?",r_ko:"개인적 덕으로 읽힐 수 있다. 물어라: 이사야 1:17은 어떤 구조적 행동을 요구하는가?"},
+{w_en:"Wash yourselves / 씻으라",r_en:"May import ritual purity. Ask: what does 'washing' mean when sacrifice has been rejected?",r_ko:"의식적 순결을 가져올 수 있다. 물어라: 제물이 거부된 맥락에서 '씻음'은 무엇을 의미하는가?"}
+],
+contexts:[
+{l_en:"Religious institution excluding poor while maintaining worship",l_ko:"예배를 유지하면서 가난한 자를 배제하는 종교 기관",p_en:"A church in a gentrifying neighborhood continues worship programs while the poor are displaced. What is YHWH's structural diagnostic for this community?",p_ko:"젠트리피케이션이 일어나는 동네의 교회가 가난한 자들이 밀려나는 동안 예배 프로그램을 계속한다."},
+{l_en:"Student from a privileged religious background",l_ko:"특권 있는 종교적 배경의 학생",p_en:"A student from a well-resourced church reads 'rulers of Sodom.' Who is being named in their context? What structural arrangement might receive this indictment?",p_ko:"편안하고 자원이 풍부한 교회 출신 학생이 '소돔의 관원들'을 읽는다. 그들의 맥락에서 누가 명명되고 있는가?"},
+{l_en:"Christian community in political power",l_ko:"정치적 권력을 가진 기독교 공동체",p_en:"A Christian community uses its political influence primarily to maintain its own religious freedoms. What does Isaiah 1:10-17 say to communities that use power for self-protection rather than for the widow and orphan?",p_ko:"기독교 공동체가 상당한 정치적 영향력을 자신의 종교적 자유 유지에 사용한다."}
+]
+}
+},
+jeremiah:{
+tuesday:{
+ref_en:"Jeremiah 31:31-34",ref_ko:"예레미야 31:31-34",
+why_en:"The New Covenant is Jeremiah's most radical contribution — Torah written on the heart, democratizing divine knowledge from least to greatest.",
+why_ko:"새 언약은 예레미야의 가장 급진적인 공헌이다 — 마음에 기록된 율법, 가장 작은 자부터 가장 큰 자까지 신적 지식의 민주화.",
+hist_en:"627-586 BCE. Jerusalem has fallen. The Temple is destroyed. Every institutional carrier of covenant has failed. Jeremiah speaks the most radical hope from within the ruins.",
+hist_ko:"기원전 627-586년. 예루살렘이 함락됐다. 성전이 파괴됐다. 모든 제도적 담지체가 실패했다.",
+lit_en:"Jeremiah 30-33 is the 'Book of Consolation' — an island of hope in a book dominated by judgment. The New Covenant passage is its theological center.",
+lit_ko:"예레미야 30-33장은 '위로의 책'이다 — 심판이 지배하는 책에서 소망의 섬.",
+cult_en:"The scribal and priestly class controlled Torah access. The 'least to greatest' reversal directly challenges this power arrangement. Elite knowledge-gatekeeping is structurally dissolved.",
+cult_ko:"서기관과 제사장 계층이 율법 접근을 통제했다. '가장 작은 자부터 가장 큰 자까지'의 역전은 이 권력 배열을 직접적으로 도전한다.",
+exe_en:"What is structurally new about the New Covenant — and what does it change about the mediation of divine knowledge?",
+exe_ko:"새 언약에서 구조적으로 새로운 것은 무엇인가 — 그리고 그것은 신적 지식의 중재에 대해 무엇을 변화시키는가?",
+exeA_en:"The New Covenant is not a new set of laws but a new location: from external stone tablets (mediated through priests and scribes) to internal heart inscription (intrinsic to every covenant member). 'They shall all know me, from the least to the greatest' dissolves the knowledge-gatekeeping system entirely. Formation Permanence: the crossing is irreversible and internally sustained.",
+exeA_ko:"새 언약은 새로운 율법의 집합이 아니라 기존 율법의 새로운 위치이다: 외부 돌판에서 내부 마음 새김으로. '가장 작은 자부터 가장 큰 자까지 다 나를 알리라'는 지식-게이트키핑 시스템을 완전히 해소한다.",
+her_en:"What structures in contemporary religious life function as 'stone tablets' — requiring elite mediation to access divine knowledge?",
+her_ko:"현대 종교 생활에서 어떤 구조들이 '돌판'으로 기능하는가 — 신적 지식에 접근하기 위해 엘리트 중재를 필요로 하는?",
+herA_en:"The text diagnoses any system in which access to God requires hierarchical intermediaries — theological credentials, institutional membership, doctrinal gatekeeping — as enacting the old covenant structure that the New Covenant structurally dissolves. The diagnostic: what does the church require before a person can 'know YHWH' directly?",
+herA_ko:"본문은 하나님께 접근하는 데 계층적 중재자를 필요로 하는 모든 시스템을 진단한다 — 신학 자격증, 제도적 구성원 자격, 교리적 게이트키핑.",
+triad:{where_en:"The ruins of Jerusalem — maximum institutional failure — is where the most radical covenant renewal is announced.",where_ko:"예루살렘의 폐허 — 최대 제도적 실패의 자리 — 가 가장 급진적인 언약 갱신이 선언되는 곳이다.",who_en:"The community moves from Torah-access mediated by elite gatekeepers toward every member as a direct site of divine knowledge.",who_ko:"공동체는 엘리트 게이트키퍼에 의해 중재된 율법 접근에서 모든 구성원이 신적 지식의 직접적인 자리가 되는 방향으로 나아간다.",what_en:"The community is called to the internalized covenant — formation that does not depend on external institutional maintenance.",what_ko:"공동체는 내면화된 언약으로 부름받는다 — 외부 제도적 유지에 의존하지 않는 형성."},
+vocab:[
+{w_en:"New / 새",r_en:"May import novelty or replacement. Ask: what is new about the New Covenant — new content, or new location? What stays the same?",r_ko:"새로움이나 대체를 가져올 수 있다. 물어라: 새 언약에서 새로운 것은 무엇인가 — 새로운 내용인가, 새로운 위치인가?"},
+{w_en:"Heart / 마음",r_en:"May import individual emotional experience. Ask: what does Torah written on the heart mean structurally?",r_ko:"개인적 감정적 경험을 가져올 수 있다. 물어라: 마음에 기록된 율법은 구조적으로 무엇을 의미하는가?"},
+{w_en:"Know YHWH / 여호와를 알다",r_en:"May import intellectual knowledge. Ask: what kind of knowing — relational, covenantal, structural?",r_ko:"지적 지식을 가져올 수 있다. 물어라: 이것은 어떤 종류의 앎인가 — 관계적, 언약적, 구조적?"},
+{w_en:"Forgive / 용서하다",r_en:"May be read as individual absolution. Ask: what structural condition does forgiveness create?",r_ko:"개인적 사면으로 읽힐 수 있다. 물어라: 용서는 어떤 구조적 상태를 만드는가?"}
+],
+contexts:[
+{l_en:"Church with high theological gatekeeping requirements",l_ko:"높은 신학적 게이트키핑 요건이 있는 교회",p_en:"A church requires formal doctrinal education and elder approval before someone is considered a full covenant member. What does Jeremiah 31:31-34 say to communities that structure access to God through institutional gatekeeping?",p_ko:"교회가 사람을 완전한 언약 구성원으로 간주하기 전에 공식적인 교리 교육과 장로 승인을 요구한다."},
+{l_en:"Person whose access to God has been mediated by trauma",l_ko:"트라우마에 의해 하나님께의 접근이 중재된 사람",p_en:"A student says 'I don't know how to know God directly' — their experience of God mediated entirely by an abusive religious authority. What does 'they shall all know me' say to this person?",p_ko:"학생이 '나는 하나님을 직접 어떻게 알아야 할지 모른다'고 말한다 — 학대적 종교 권위에 의해 완전히 중재된 하나님 경험."},
+{l_en:"Community discerning covenant membership requirements",l_ko:"언약 구성원 자격에 필요한 것을 분별하는 공동체",p_en:"A church is reviewing its membership requirements. What does Jeremiah 31:31-34 contribute to the question: what structural conditions enable rather than gatekeep covenant formation?",p_ko:"교회가 구성원 자격 요건을 검토하고 있다. 예레미야 31:31-34는 어떤 구조적 조건이 언약 형성을 가능하게 하는지에 대해 무엇을 기여하는가?"}
+]
+},
+friday:{
+ref_en:"Jeremiah 7:3-4, 11",ref_ko:"예레미야 7:3-4, 11",
+why_en:"The Temple Sermon: the physical Temple is being used as a false guarantee of divine protection — ✗ CLOSED WOMB masquerading as holiness.",
+why_ko:"성전 설교: 물리적 성전이 신적 보호의 거짓 보증으로 사용되고 있다 — 거룩함으로 가장한 ✗ CLOSED WOMB.",
+hist_en:"627-586 BCE. Jeremiah preaches at the Temple gate during political crisis. The Temple ideology — YHWH will never allow Jerusalem to fall — is functioning as an ideological guarantee.",
+hist_ko:"기원전 627-586년. 예레미야가 정치적 위기의 시기에 성전 문에서 설교한다.",
+lit_en:"Jeremiah stands at the Temple gate — the physical location is part of the prophetic act. He is preaching against the institution from within its own threshold.",
+lit_ko:"예레미야는 성전 문에 선다 — 물리적 위치가 예언적 행위의 일부이다. 그는 기관의 문지방 안에서 기관에 대항하여 설교하고 있다.",
+cult_en:"The triple repetition 'This is the Temple of YHWH' was likely a liturgical formula — a creed used in Temple worship. Jeremiah is deconstructing official liturgy.",
+cult_ko:"삼중 반복 '이것은 여호와의 전이라'는 아마도 예전적 공식이었을 것이다 — 성전 예배에서 사용된 신조.",
+exe_en:"What is Jeremiah accusing the Temple of being, and why does he call it a 'den of robbers'?",
+exe_ko:"예레미야는 성전이 무엇이라고 비난하며, 왜 그것을 '강도의 굴'이라고 부르는가?",
+exeA_en:"The Temple has been converted from a generative Matrix Space into a ✗ CLOSED WOMB — providing the powerful with divine guarantee while excluding the poor, widow, orphan, and foreigner from covenant protection. 'Den of robbers' names a hideout where robbers retreat after committing crimes — Israel performs structural violence, then retreats to the Temple for divine cover. ⚡ KAIROS THEFT.",
+exeA_ko:"성전은 생성적 매트릭스 공간에서 ✗ CLOSED WOMB로 전환되었다. '강도의 굴'은 강도들이 범죄를 저지른 후 도피하는 은신처이다 — 이스라엘은 구조적 폭력을 행사한 후 신적 보호를 위해 성전으로 후퇴한다.",
+her_en:"What contemporary institutions function as 'Temple of YHWH' claims — providing divine authorization while excluding the most vulnerable?",
+her_ko:"어떤 현대 기관들이 '여호와의 전' 주장으로 기능하는가 — 가장 취약한 자들을 배제하면서 공동체에 신적 권위를 제공하는?",
+herA_en:"Any institution using religious legitimacy to maintain structural exclusion of the vulnerable enacts Temple ideology. The diagnostic: who benefits from this institution's divine authorization? Who is excluded? What structural arrangement does the institution maintain while claiming YHWH's presence?",
+herA_ko:"취약자의 구조적 배제를 유지하기 위해 종교적 합법성을 사용하는 모든 기관은 성전 이데올로기를 실행하고 있다.",
+triad:{where_en:"The Temple — YHWH's house — has become a hideout for those who exploit the vulnerable. Sacred space structurally inverted.",where_ko:"성전 — YHWH의 집 — 이 취약자를 착취하는 자들의 은신처가 되었다. 신성한 공간이 구조적으로 역전되었다.",who_en:"The community is becoming a people who use sacred space to produce impunity for structural violence.",who_ko:"공동체는 구조적 폭력에 대한 불처벌을 생산하기 위해 신성한 공간을 사용하는 백성이 되고 있다.",what_en:"The community is called to amend ways and doings — specific structural reformation, not religious performance.",what_ko:"공동체는 행동과 삶을 고칠 것을 부름받는다 — 종교적 수행이 아닌 구체적, 구조적 개혁."},
+vocab:[
+{w_en:"Temple of YHWH / 여호와의 전",r_en:"May be read as legitimate religious confidence. Ask: what is the triple repetition performing? Faith or magical formula?",r_ko:"합당한 종교적 확신으로 읽힐 수 있다. 물어라: 삼중 반복은 무엇을 수행하는가? 믿음인가 마법적 공식인가?"},
+{w_en:"Den of robbers / 강도의 굴",r_en:"Most students assume commercial exploitation. Ask: what are 'robbers' doing — committing crimes elsewhere, then hiding in the Temple?",r_ko:"대부분의 학생들은 상업적 착취를 가정한다. 물어라: 이 은유에서 '강도들'은 무엇을 하고 있는가?"},
+{w_en:"Amend / 고치다",r_en:"May be read as moral self-improvement. Ask: what specific structural changes does Jeremiah demand (v.5-7)?",r_ko:"도덕적 자기 개선으로 읽힐 수 있다. 물어라: 예레미야는 어떤 구체적인 구조적 변화를 요구하는가(5-7절)?"},
+{w_en:"Deceptive words / 거짓말",r_en:"May be read as false doctrines. Ask: what makes the Temple formula 'deceptive' — theologically incorrect, or structurally false?",r_ko:"거짓 교리로 읽힐 수 있다. 물어라: 성전 공식이 왜 '거짓'인가?"}
+],
+contexts:[
+{l_en:"Denomination using theological identity to avoid accountability",l_ko:"구조적 책임을 피하기 위해 신학적 정체성을 사용하는 교단",p_en:"A denomination invokes its theological tradition to deflect criticism of its structural failures. What is Jeremiah's structural diagnostic for this community?",p_ko:"교단이 가난한 자에 대한 구조적 실패 비판을 피하기 위해 신학적 전통을 끌어들인다."},
+{l_en:"Student whose church provided divine cover for injustice",l_ko:"교회가 불의에 대한 신적 보호막을 제공한 학생",p_en:"A student grew up in a church that taught 'God blesses this community' while maintaining racial or economic exclusion. How does Jeremiah 7 name what was happening structurally?",p_ko:"학생이 인종적 또는 경제적 배제를 유지하면서 '하나님이 이 공동체를 축복한다'고 가르치는 교회에서 성장했다."},
+{l_en:"Community discerning whether its sacred space is generative or closed",l_ko:"신성한 공간이 생성적인지 닫혀있는지 분별하는 공동체",p_en:"A church asks: is our worship genuinely forming covenant people, or providing religious satisfaction that substitutes for structural transformation? What diagnostic does Jeremiah 7 offer?",p_ko:"교회가 묻는다: 예배가 진정으로 언약 백성을 형성하는가, 아니면 구조적 변화를 대체하는 종교적 만족을 제공하는가?"}
+]
+}
+},
+ezekiel:{
+tuesday:{
+ref_en:"Ezekiel 34:1-10",ref_ko:"에스겔 34:1-10",
+why_en:"The Shepherd Discourse is the structural analysis of leadership failure: those who control the Matrix Space use it for extraction rather than formation.",
+why_ko:"목자 담론은 리더십 실패의 구조적 분석이다: 매트릭스 공간을 통제하는 자들이 그것을 형성이 아닌 착취에 사용한다.",
+hist_en:"593-571 BCE. Ezekiel is in Babylon with the exiled community. Jerusalem has fallen. The shepherds (kings, priests, officials) have failed catastrophically.",
+hist_ko:"기원전 593-571년. 에스겔은 포로 공동체와 함께 바벨론에 있다. 예루살렘이 함락됐다.",
+lit_en:"The shepherd metaphor is the dominant leadership image of the ANE. Ezekiel uses it to indict Israel's entire leadership class — not just individual failures but systemic extraction.",
+lit_ko:"목자 은유는 고대 근동의 지배적인 리더십 이미지이다. 에스겔은 이것을 사용하여 이스라엘의 전체 리더십 계층을 기소한다.",
+cult_en:"Kings were regularly depicted as shepherds in ANE royal iconography — responsible for feeding and protecting the flock. Ezekiel is using the royal ideology against itself.",
+cult_ko:"왕들은 고대 근동 왕실 도상학에서 정기적으로 목자로 묘사되었다. 에스겔은 왕실 이데올로기를 자체에 반대하는 데 사용한다.",
+exe_en:"What specifically does YHWH accuse the shepherds of, and what is the structural consequence?",
+exe_ko:"YHWH는 구체적으로 목자들을 무엇으로 비난하며, 구조적 결과는 무엇인가?",
+exeA_en:"The indictment is exhaustively structural: the shepherds feed themselves (v.3), do not strengthen the weak (v.4a), do not heal the sick (v.4b), do not bind up the injured (v.4c), do not seek the lost (v.4e) — but rule with force and harshness (v.4f). The flock is scattered because the Matrix Space was used for extraction rather than formation. YHWH's response: remove the shepherds and personally shepherd the flock.",
+exeA_ko:"기소는 철저히 구조적이다: 목자들이 자신을 먹이고, 연약한 자를 강하게 하지 않고, 병든 자를 고치지 않고, 강압과 포악으로 지배한다. 무리는 매트릭스 공간을 통제하는 자들이 그것을 착취에 사용했기 때문에 흩어졌다.",
+her_en:"What leadership structures today use control of community space for extraction rather than formation?",
+her_ko:"오늘날 어떤 리더십 구조들이 형성이 아닌 착취를 위해 공동체 공간의 통제를 사용하는가?",
+herA_en:"The text provides a structural diagnostic for contemporary leadership: any leadership that uses control of community resources primarily for self-benefit rather than formation of the most vulnerable is enacting the Ezekiel 34 pattern. The test is not intention but structural outcome: who is being fed, and who is being left scattered?",
+herA_ko:"본문은 현대 리더십에 직접 적용되는 구조적 진단을 제공한다. 시험은 의도가 아니라 구조적 결과이다: 누가 먹임을 받고, 누가 흩어진 채로 남겨지는가?",
+triad:{where_en:"The exilic community — scattered, leaderless — is the spatial reality that resulted from the shepherds' structural failure.",where_ko:"포로 공동체 — 바벨론에서 흩어지고 지도자 없이 — 가 목자들의 구조적 실패에서 비롯된 공간적 현실이다.",who_en:"The community moves from scattered flock under exploitative shepherds toward direct divine shepherding — YHWH as the true Shepherd.",who_ko:"공동체는 착취적 목자들 아래의 흩어진 무리에서 직접적인 신적 목자직을 향해 나아간다.",what_en:"The community is called to recognize and name leadership extraction versus formation — and hold leadership accountable.",what_ko:"공동체는 리더십 착취 대 형성을 인식하고 명명하도록 부름받는다."},
+vocab:[
+{w_en:"Shepherds / 목자들",r_en:"May be read as referring only to spiritual/pastoral leaders. Ask: who are the 'shepherds' — only religious leaders, or the entire political-religious leadership class?",r_ko:"영적/목회적 지도자만을 가리키는 것으로 읽힐 수 있다. 물어라: '목자들'은 누구인가?"},
+{w_en:"Feed themselves / 자신을 먹이다",r_en:"May be individualized as greed. Ask: what is the structural condition of self-feeding leadership? What happens to the community?",r_ko:"탐욕으로 개인화될 수 있다. 물어라: 자신을 먹이는 리더십의 구조적 상태는 무엇인가?"},
+{w_en:"Force and harshness / 강압과 포악",r_en:"May import only physical violence. Ask: what does ruling with force and harshness look like in institutional contexts?",r_ko:"물리적 폭력만 가져올 수 있다. 물어라: 제도적 맥락에서 강압과 포악으로 지배하는 것은 어떻게 보이는가?"},
+{w_en:"Scattered / 흩어진",r_en:"May be read as spiritual disorientation only. Ask: what are the material, structural consequences of leadership failure?",r_ko:"영적 방향 상실로만 읽힐 수 있다. 물어라: 리더십 실패의 물질적, 구조적 결과는 무엇인가?"}
+],
+contexts:[
+{l_en:"Church leadership using institutional authority for self-protection",l_ko:"자기 보호를 위해 제도적 권위를 사용하는 교회 리더십",p_en:"A church's leadership prioritizes the institution's reputation and financial security over the formation of the most vulnerable members. What is Ezekiel 34's structural diagnosis?",p_ko:"교회의 리더십이 가장 취약한 구성원의 형성보다 기관의 명성과 재정적 안정을 우선시한다."},
+{l_en:"Student who has experienced exploitative spiritual leadership",l_ko:"착취적 영적 리더십을 경험한 학생",p_en:"A student has been under a leader who used the community to build their own platform and influence. How does Ezekiel 34 name what happened structurally? What does YHWH's response say about divine action when leaders fail?",p_ko:"학생이 공동체를 주로 자신의 플랫폼과 영향력을 구축하기 위해 사용한 지도자 아래에 있었다."},
+{l_en:"Community discerning its leadership formation model",l_ko:"리더십 형성 모델을 분별하는 공동체",p_en:"A church is designing its leadership development program. What does Ezekiel 34's structural indictment say about what the formation of leaders must be oriented toward?",p_ko:"교회가 리더십 개발 프로그램을 설계하고 있다. 에스겔 34장의 구조적 기소는 지도자들의 형성이 무엇을 향해 지향되어야 하는지에 대해 무엇을 말하는가?"}
+]
+},
+friday:{
+ref_en:"Ezekiel 37:1-14",ref_ko:"에스겔 37:1-14",
+why_en:"The Valley of Dry Bones: maximum Frozen Space → divine new creation by ruach. Not restoration of the old but emergence of the genuinely new.",
+why_ko:"마른 뼈 골짜기: 최대 동결 공간 → 루아흐에 의한 신적 새 창조. 옛것의 회복이 아닌 진정으로 새로운 것의 출현.",
+hist_en:"593-571 BCE. The exilic community in Babylon has declared maximum despair: 'our bones are dried up, our hope is lost, we are cut off completely.'",
+hist_ko:"기원전 593-571년. 바벨론의 포로 공동체가 최대 절망을 선언했다: '우리의 뼈들이 말랐고 우리의 소망이 없어졌으니 우리는 다 멸절되었다.'",
+lit_en:"Chapter 37 is the theological climax of Ezekiel's restoration vision. The valley of bones reverses the departure of the Glory (chs. 8-11) — what left is now returning, but in a new mode.",
+lit_ko:"37장은 에스겔의 회복 환상의 신학적 절정이다. 뼈 골짜기는 영광의 출발(8-11장)을 역전시킨다.",
+cult_en:"Resurrection imagery is used for communal, national restoration — not individual eschatology. The bones represent the whole house of Israel (v.11). Ruach carries full ambiguity: breath / wind / Spirit simultaneously.",
+cult_ko:"부활 이미지가 공동체적, 국가적 회복에 사용되고 있다. 뼈들은 이스라엘 온 족속을 나타낸다. 루아흐는 숨/바람/영 — 세 가지 의미 모두가 동시에 작동한다.",
+exe_en:"What is the relationship between the community's confession ('our hope is lost') and YHWH's response — and what does the ruach do that the community cannot do for itself?",
+exe_ko:"공동체의 고백('소망이 없다')과 YHWH의 반응 사이의 관계는 무엇이며, 루아흐는 공동체가 스스로 할 수 없는 무엇을 하는가?",
+exeA_en:"The community's confession is diagnostic — maximum ✗ Frozen Space. YHWH's response is not encouragement but new creation from outside the system: the ruach enters the bones and constitutes new life that the bones cannot produce for themselves. ⚡ BIRTH as divine initiative — not restoration of what was but emergence of what was not. Formation Permanence: the ruach-constituted community is irreversibly new.",
+exeA_ko:"공동체의 고백은 진단적이다 — 최대 ✗ 동결 공간. YHWH의 반응은 격려가 아니라 시스템 밖에서 오는 새 창조이다: 루아흐가 뼈들 안으로 들어와 뼈들이 스스로 생산할 수 없는 새로운 생명을 구성한다.",
+her_en:"What does it mean for communities today that YHWH's response to maximum structural collapse is not restoration but new creation?",
+her_ko:"오늘날 공동체에게 YHWH의 최대 구조적 붕괴에 대한 반응이 회복이 아닌 새 창조라는 것은 무엇을 의미하는가?",
+herA_en:"The text refuses the nostalgic restoration impulse: 'bring back what we had.' YHWH's answer is not re-animation of the old structure but new creation of a community that did not previously exist. The diagnostic: is the community seeking restoration (back to the old) or opening toward new creation (the ruach-constituted WHO that has not yet existed)?",
+herA_ko:"본문은 향수어린 회복 충동을 거부한다. YHWH의 대답은 옛 구조의 재활성화가 아니라 이전에 존재하지 않았던 공동체의 새 창조이다.",
+triad:{where_en:"The valley of dry bones — maximum frozen space — is the site where YHWH's new creation occurs. The lowest point is the generative threshold.",where_ko:"마른 뼈 골짜기 — 최대 동결 공간 — 가 YHWH의 새 창조가 일어나는 자리이다. 가장 낮은 지점이 생성적 문턱이다.",who_en:"The community moves from dead bones ('our hope is lost') to a living community constituted by the ruach — an irreversibly new WHO.",who_ko:"공동체는 '소망이 없다'고 선언하는 죽은 뼈들에서 루아흐에 의해 구성된 살아있는 공동체로 나아간다 — 돌이킬 수 없이 새로운 WHO.",what_en:"The community is called to open toward divine new creation — to receive the ruach rather than reconstruct the old bones.",what_ko:"공동체는 옛 뼈들을 재구성하는 것이 아니라 루아흐를 받도록 신적 새 창조를 향해 열리도록 부름받는다."},
+vocab:[
+{w_en:"Hope is lost / 소망이 없다",r_en:"May be pathologized as insufficient faith. Ask: is the community's declaration an accurate structural diagnosis or a failure of faith?",r_ko:"불충분한 믿음으로 병리화될 수 있다. 물어라: 공동체의 선언이 정확한 구조적 진단인가 믿음의 실패인가?"},
+{w_en:"Ruach / 영/바람/숨",r_en:"Will likely be reduced to 'Holy Spirit' in a Christian register. Ask: what does ruach mean in its full range — breath, wind, Spirit?",r_ko:"기독교 맥락에서 '성령'으로 축소될 가능성이 높다. 물어라: 루아흐는 전체 범위에서 무엇을 의미하는가 — 숨, 바람, 영?"},
+{w_en:"Live / 살다",r_en:"May import individual resurrection or spiritual revival. Ask: who is the subject of 'they shall live'? Individual salvation or communal new creation?",r_ko:"개인 부활이나 영적 부흥을 가져올 수 있다. 물어라: '그들이 살리라'의 주어는 누구인가?"},
+{w_en:"Prophesy / 예언하다",r_en:"May import individual prophetic gift. Ask: what does prophesying to the bones and to the wind accomplish structurally?",r_ko:"개인적 예언적 은사를 가져올 수 있다. 물어라: 뼈들과 바람에게 예언하는 것은 구조적으로 무엇을 성취하는가?"}
+],
+contexts:[
+{l_en:"Community that has experienced institutional death",l_ko:"제도적 죽음을 경험한 공동체",p_en:"A church has lost its building, congregation has scattered, programs have ended. 'Our hope is lost.' What does Ezekiel 37 offer — the promise of restoration or the invitation to new creation?",p_ko:"교회가 건물을 잃고, 회중이 흩어지고, 프로그램이 끝났다. '소망이 없다.' 에스겔 37장은 무엇을 제공하는가?"},
+{l_en:"Student who has lost their faith community",l_ko:"신앙 공동체와 형성 맥락을 잃은 학생",p_en:"A student's faith community has collapsed — through abuse, institutional failure, or theological crisis. 'I don't know if I can believe anymore.' How does Ezekiel 37 speak to maximum structural loss of formation context?",p_ko:"학생의 신앙 공동체가 붕괴했다 — 남용, 제도적 실패, 또는 신학적 위기를 통해. '나는 더 이상 믿을 수 있을지 모르겠다.'"},
+{l_en:"Community discerning between restoration and new creation",l_ko:"회복과 새 창조 사이를 분별하는 공동체",p_en:"A church is rebuilding after a crisis. Some want to restore what was; others sense God is doing something new. What does Ezekiel 37's sequence say about the direction of divine action?",p_ko:"교회가 위기 후 재건하고 있다. 일부 구성원은 있었던 것을 회복하기를 원하고, 다른 이들은 하나님이 새로운 것을 하고 계신다는 것을 감지한다."}
+]
+}
+}
+};
+
+var stages_en = ["1 · Pre-Class Context","2 · Small Group Compare","3 · Text Objectification","4 · Vocab + Source Probe","5 · Contextual Transposition"];
+var stages_ko = ["1 · 수업 전 맥락","2 · 소그룹 비교","3 · 문장 객관화","4 · 어휘·출처 탐문","5 · 맥락 전치"];
+var timings = ["2–3 min","3–4 min","4–5 min","4–5 min","3–4 min"];
+
+function currentText(){return texts[state.prophet][state.day];}
+function isKo(){return state.lang==='ko';}
+function t(key){var tx=currentText();return isKo()?tx[key+'_ko']||tx[key+'ko']:tx[key+'_en']||tx[key+'en'];}
+
+
+function guideButtons(ko){
+  var items=[
+    ['workflow',ko?'학습 흐름':'Learning Flow'],
+    ['thinking',ko?'읽기가 형성되는 과정':'How Your Reading Forms'],
+    ['prearticulate',ko?'설명 전 체크':'Before You Explain'],
+    ['prebelief',ko?'내 읽기의 출처':'Where My Reading Came From'],
+    ['formation',ko?'성장 점검':'Growth Check'],
+    ['aibrake',ko?'AI 멈춤 규칙':'When to Pause AI']
+  ];
+  return '<div class="guide-nav">'+items.map(function(it){return '<button class="guide-btn'+(state.guide===it[0]?' active':'')+'" onclick="setGuide(\''+it[0]+'\')">'+it[1]+'</button>';}).join('')+'</div>';
+}
+
+function currentPressurePoint(){
+  var p=state.prophet, d=state.day;
+  if(p==='amos' && d==='tuesday') return {en:'reducing election to privilege instead of accountability', ko:'선택을 책임이 아니라 특권으로 축소하는 것'};
+  if(p==='amos' && d==='friday') return {en:'treating worship as valid while justice is absent', ko:'정의가 없는 상태에서도 예배를 유효하다고 여기는 것'};
+  if(p==='hosea' && d==='tuesday') return {en:'imagining holiness as distance rather than wounded fidelity', ko:'거룩함을 상처 입은 신실함이 아닌 거리로 상상하는 것'};
+  if(p==='hosea' && d==='friday') return {en:'reading wilderness only as punishment rather than generative renewal', ko:'광야를 생성적 갱신이 아니라 처벌로만 읽는 것'};
+  if(p==='isaiah' && d==='tuesday') return {en:'turning calling into heroic volunteering without prior undoing', ko:'선행 해체 없이 소명을 영웅적 자원으로 바꾸는 것'};
+  if(p==='isaiah' && d==='friday') return {en:'reducing holiness to purity while ignoring structural justice', ko:'구조적 정의를 무시한 채 거룩함을 순결로만 축소하는 것'};
+  if(p==='jeremiah' && d==='tuesday') return {en:'using sacred institutions as protection against prophetic critique', ko:'예언적 비판으로부터 자신을 보호하기 위해 성스러운 제도를 사용하는 것'};
+  if(p==='jeremiah' && d==='friday') return {en:'spiritualizing the heart while leaving public structure untouched', ko:'마음을 영성화하면서 공적 구조는 그대로 두는 것'};
+  if(p==='ezekiel' && d==='tuesday') return {en:'reading exile as abandonment rather than a relocated site of divine presence', ko:'포로를 신적 임재의 재배치가 아니라 버림으로 읽는 것'};
+  return {en:'reducing new creation to restoration of the old', ko:'새 창조를 옛것의 복원으로 축소하는 것'};
+}
+
+function guideExampleWord(ko){
+  var tx=currentText();
+  var word=(tx.vocab && tx.vocab.length)?tx.vocab[0].w_en:'';
+  if(!word) return '';
+  if(ko){
+    var parts=word.split('/');
+    return (parts.length>1?parts[1].trim():word);
+  }
+  return word;
+}
+
+function renderGuide(){
+  var tx=currentText(), ko=isKo(), pressure=currentPressurePoint();
+  var html='';
+  html+='<div class="guide-hub">';
+  html+='<div class="guide-head">';
+  html+='<div><div class="guide-title">'+(ko?'UB_W6 학생 학습 경로':'UB_W6 Student Learning Path')+'</div><div class="guide-sub">'+(ko?'학생이 본문을 읽고 주해하고 해석하는 과정을 스스로 보도록 돕는 학습 안내층입니다. 현재 선택된 본문: ':'This student guide helps you see how you read, exegete, interpret, and form an output sentence in Week 6. Current text: ')+(ko?tx.ref_ko:tx.ref_en)+'</div></div>';
+  html+='<div class="guide-pill">'+(ko?'학생 학습용':'Student Learning')+'</div>';
+  html+='</div>';
+  html+=guideButtons(ko);
+
+  if(state.guide==='workflow'){
+    html+='<div class="guide-callout"><div class="guide-label">'+(ko?'핵심 목표':'Core Aim')+'</div><div class="guide-text">'+(ko?'학생이 답을 빨리 맞히는 것이 아니라, 자신이 어떻게 주해하고 해석하고 문장으로 표현하는지를 보도록 돕는 것입니다. 이 앱의 5단계는 전-표현 만남 → 본문 관찰 → 출처 점검 → 해석 문장 → 현재 맥락 시험의 흐름을 다시 보이게 합니다.':'The goal is not rapid correctness but helping you see how you move from reading to exegesis, from exegesis to interpretation, and from interpretation to a stated claim. The five stages slow the rush to a finished answer and reopen the sequence: pre-articulate encounter → textual observation → sourcing move → articulated exegetical and hermeneutical output.')+'</div></div>';
+    html+='<div class="guide-grid">';
+    html+='<div class="guide-box"><div class="guide-label">1</div><div class="guide-box-title">'+(ko?'만남 먼저':'Encounter First')+'</div><div class="guide-text">'+(ko?(tx.ref_ko+'를 읽고 곧바로 정답을 찾지 말고 먼저 무엇이 낯설고 불편한지 적으세요. 정직한 주해는 다듬어진 답이 아니라 실제 만남에서 시작됩니다.'):( 'Before hunting for the right answer in '+tx.ref_en+', name what feels strange, resistant, or destabilizing. This is how you begin exegesis honestly: not with a polished answer, but with a real encounter.'))+'</div></div>';
+    html+='<div class="guide-box"><div class="guide-label">2</div><div class="guide-box-title">'+(ko?'소그룹 비교':'Small-Group Compare')+'</div><div class="guide-text">'+(ko?'주해와 해석 답을 나란히 비교하며, 본문 관찰이 어떻게 해석 주장으로 바뀌는지 보세요. 서로의 읽기에서 어디가 같고 어디서 충돌하는지 찾으세요. 빠른 합의보다 차이를 정확히 보존하는 것이 더 중요합니다.':'Compare exegetical and hermeneutical readings side by side. Notice how your textual observations become interpretive claims. Preserve where the group converges and where it breaks apart. Accuracy of divergence matters more than quick consensus.')+'</div></div>';
+    html+='<div class="guide-box"><div class="guide-label">3</div><div class="guide-box-title">'+(ko?'문장 객관화':'Sentence Objectification')+'</div><div class="guide-text">'+(ko?'한 문장으로 요약하되 WHERE–WHO–WHAT이 빠지지 않게 하세요. 이것이 당신의 첫 공개 output입니다. 지금 본문에서는 '+pressure.ko+'라는 왜곡을 피하는 문장이 필요합니다.':'Reduce your reading to one sentence, but make sure WHERE–WHO–WHAT remain visible. This is your first public output. For this text the sentence must resist the common reduction of '+pressure.en+'.')+'</div></div>';
+    html+='<div class="guide-box"><div class="guide-label">4</div><div class="guide-box-title">'+(ko?'어휘·출처 탐문':'Vocabulary + Source Probe')+'</div><div class="guide-text">'+(ko?'예를 들어 "'+guideExampleWord(true)+'" 같은 단어를 왜 그렇게 사용했는지 묻고, 그 프레이밍이 본문 자체, AI, 교리, 문화, 선이해 중 어디에서 왔는지 확인하세요.':'Ask why you used a word such as "'+guideExampleWord(false)+'" and identify whether that framing came from the text itself, AI, doctrine, culture, or a prior assumption.')+'</div></div>';
+    html+='<div class="guide-box full"><div class="guide-label">5</div><div class="guide-box-title">'+(ko?'맥락 전치':'Contextual Transposition')+'</div><div class="guide-text">'+(ko?'마지막으로 본문을 현재 시나리오에 옮겨 놓으세요. 이 앱의 마지막 단계에 있는 세 가지 컨텍스트 카드 중 하나를 골라, 지금 만든 문장이 그 상황에서 어떻게 시험되는지 말해 보세요. 이 단계는 단순 적용이 아니라, 당신의 주해가 실제로 해석학적 무게를 견디는지 보는 단계입니다.':'Finally transpose the reading into a present scenario. Use one of the context cards in Stage 5 and test whether your sentence still holds there. This is where you see whether your exegesis can actually bear hermeneutical weight.')+'</div></div>';
+    html+='</div>';
+    html+='<div class="guide-callout purple"><div class="guide-label">'+(ko?'학생 output 점검':'Student Output Check')+'</div><div class="guide-text">'+(ko?'마지막에 당신은 세 가지를 말할 수 있어야 합니다: ① 본문이 실제로 무엇을 말하는가(주해), ② 그것이 지금 무엇을 요구하는가(해석), ③ 내가 그 결론에 어떻게 도달했는가(사고 과정).':'At the end you should be able to state three things: (1) what the text is actually saying (exegesis), (2) what that means here and now (interpretation), and (3) how you arrived at that conclusion (thinking process).')+'</div></div>';
+  }
+
+  if(state.guide==='thinking'){
+    html+='<div class="guide-callout gold"><div class="guide-label">'+(ko?'사고 과정':'Thinking Process')+'</div><div class="guide-text">'+(ko?'이 섹션은 당신의 완성된 답이 어떻게 만들어졌는지를 보게 합니다. output 문장에서 시작해 핵심어, 출처, 첫 저항의 순간으로 거꾸로 추적합니다. 핵심은 정답보다 역추적 가능성입니다.':'This section helps you see how your finished answer was formed. You begin with the output sentence, then trace backward to the key word, the source, and the first moment of resistance. The key value is not correctness alone, but reversibility and traceability.')+'</div></div>';
+    html+='<div class="guide-grid">';
+    html+='<div class="guide-box"><div class="guide-label">Layer 1</div><div class="guide-box-title">'+(ko?'전-표현 만남':'Pre-Articulate Encounter')+'</div><div class="guide-text">'+(ko?(tx.ref_ko+'에서 당신이 처음으로 움찔한 지점, 설명하고 싶어지기 전에 이미 불편했던 단어·이미지·명령을 붙잡는 층입니다.'):( 'This is the layer where you register what first startled you in '+tx.ref_en+' before you began explaining it away.'))+'</div></div>';
+    html+='<div class="guide-box"><div class="guide-label">Layer 2</div><div class="guide-box-title">'+(ko?'출처 선택 움직임':'Sourcing Move')+'</div><div class="guide-text">'+(ko?'그 불편함을 해석 가능한 문장으로 바꾸기 위해 당신이 어떤 어휘와 틀을 빌려왔는지를 보는 층입니다. 바로 여기에서 문화, 교리, AI, 선이해가 개입합니다.':'This layer shows what vocabulary and frameworks you borrowed in order to make the encounter say something intelligible. Here doctrine, culture, AI, and pre-belief enter the process.')+'</div></div>';
+    html+='<div class="guide-box"><div class="guide-label">Layer 3</div><div class="guide-box-title">'+(ko?'표현된 주장':'Articulated Claim')+'</div><div class="guide-text">'+(ko?'당신이 최종적으로 발표하는 문장입니다. 그러나 좋은 문장은 강해 보이는 문장이 아니라, 다시 2층과 1층으로 거슬러 올라갈 수 있는 문장입니다.':'This is the sentence you finally present. A good sentence is not merely strong; it can be traced back through Layer 2 and Layer 1.')+'</div></div>';
+    html+='<div class="guide-box full"><div class="guide-label">'+(ko?'UB_W6 역추적 공식':'UB_W6 Reverse Trace')+'</div><div class="guide-kv"><div class="k">'+(ko?'문장':'Sentence')+'</div><div class="v">'+(ko?'내가 지금 말한 핵심 주장은 무엇인가?':'What is the exact claim I am making now?')+'</div><div class="k">'+(ko?'핵심어':'Key Word')+'</div><div class="v">'+(ko?'그 문장을 지탱하는 단어는 무엇이며, 본문에 실제로 있는가?':'Which key word is carrying the claim, and does it actually appear in the text?')+'</div><div class="k">'+(ko?'출처':'Source')+'</div><div class="v">'+(ko?'그 단어의 프레이밍은 어디서 왔는가? 본문, AI, 교리, 문화, 선이해 중 무엇인가?':'Where did that framing come from — the text, AI, doctrine, culture, or prior assumption?')+'</div><div class="k">'+(ko?'낯섦':'Strangeness')+'</div><div class="v">'+(ko?'설명하기 전에 내가 처음 만난 저항은 무엇이었는가?':'What resistance did I actually meet before I started interpreting?')+'</div></div></div>';
+    html+='</div>';
+  }
+
+  if(state.guide==='prearticulate'){
+    html+='<div class="guide-callout green"><div class="guide-label">'+(ko?'전-표현 프로토콜':'Pre-Articulate Protocol')+'</div><div class="guide-text">'+(ko?'이 질문들은 관상 훈련 대신 텍스트의 낯섦을 통해 1층에 접근하게 합니다. 지금 선택한 본문에 대해, 학문적 답을 보기 전에 이 질문 중 하나 이상에 먼저 답하세요.':'These questions access Layer 1 through textual strangeness rather than contemplative practice. Answer at least one of them before you open the scholarly reveal for the current text.')+'</div></div>';
+    html+='<div class="guide-grid">';
+    html+='<div class="guide-box"><div class="guide-label">Q1</div><div class="guide-box-title">'+(ko?'이 본문에서 내가 사실이 아니길 바라는 것은 무엇인가?':'What in this text do I not want to be true?')+'</div><div class="guide-text">'+(ko?(tx.ref_ko+'가 당신의 종교적 안전장치를 건드리는 지점을 찾게 합니다.'):( 'This forces you to locate where '+tx.ref_en+' threatens your settled religious logic.'))+'</div></div>';
+    html+='<div class="guide-box"><div class="guide-label">Q2</div><div class="guide-box-title">'+(ko?'어떤 단어 또는 이미지가 나를 멈추게 하는가?':'Which word or image arrests me?')+'</div><div class="guide-text">'+(ko?'예: '+guideExampleWord(true)+' 같은 단어가 왜 낯선가를 적어 보세요. 그 이유가 이미 해석의 출발점입니다.':'For example, name why a word such as "'+guideExampleWord(false)+'" feels charged. That reason is already the beginning of interpretation.')+'</div></div>';
+    html+='<div class="guide-box"><div class="guide-label">Q3</div><div class="guide-box-title">'+(ko?'내가 제일 먼저 설명하거나 완화하고 싶어진 부분은 어디인가?':'What did I immediately want to soften or explain away?')+'</div><div class="guide-text">'+(ko?'이 질문은 학생이 본문이 아닌 자기 방어에서 시작하는 순간을 드러냅니다.':'This reveals the moment where defense, not the text itself, begins to guide the reading.')+'</div></div>';
+    html+='<div class="guide-box"><div class="guide-label">Q4</div><div class="guide-box-title">'+(ko?'이 본문은 내가 평소 쓰는 교회 언어를 어디서 거부하는가?':'Where does this text resist my normal church language?')+'</div><div class="guide-text">'+(ko?'후기예언서는 종종 예배, 거룩함, 회복, 선택 같은 단어를 우리가 익숙하게 쓰는 방식과 다르게 사용합니다.':'Latter Prophets often refuse our habitual uses of words like election, worship, holiness, or restoration.')+'</div></div>';
+    html+='<div class="guide-box full"><div class="guide-label">Q5</div><div class="guide-box-title">'+(ko?'여전히 해결되지 않는 것은 무엇인가?':'What remains unresolved even after I have read carefully?')+'</div><div class="guide-text">'+(ko?'좋은 액티브 러닝은 애매함을 즉시 제거하지 않습니다. 특히 '+pressure.ko+' 같은 압력 지점에서는, 해결되지 않음 자체가 중요한 자료입니다.':'Good active learning does not instantly eliminate ambiguity. Especially where the pressure point is '+pressure.en+', what remains unresolved is itself important data.')+'</div><div class="guide-mini">'+(ko?'실행 팁: Stage 2로 가기 전에 60–90초만 사용해도 충분합니다. 중요한 것은 깊이보다 선행 순서입니다.':'Use for 60–90 seconds before Stage 2. The key is not length but sequence: encounter before explanation.')+'</div></div>';
+    html+='</div>';
+  }
+
+  if(state.guide==='prebelief'){
+    html+='<div class="guide-callout purple"><div class="guide-label">'+(ko?'사전-신념 분류법':'Pre-Belief Taxonomy')+'</div><div class="guide-text">'+(ko?'학생이 "이건 그냥 당연한 것 아닌가요?"라고 느낄 때, 그 당연함은 보통 하나의 출처가 아니라 형성된 선이해의 결과입니다. 이 섹션은 그 선이해를 네 가지 하위 범주로 나눕니다.':'When a student says, “This just seems obvious,” the obviousness is usually funded by prior formation. This section breaks that prior formation into four sub-types.')+'</div></div>';
+    html+='<div class="guide-grid">';
+    html+='<div class="guide-box"><div class="guide-label">1</div><div class="guide-box-title">'+(ko?'구조적 선이해':'Structural Pre-Belief')+'</div><div class="guide-text">'+(ko?'질문: 어떤 제도적 훈련이 당신으로 하여금 이 본문을 이렇게 읽게 했는가? 교회, 교단, 대학, 설교 문화가 당신의 기본 프레이밍을 이미 설정했는가?':'Question: what institutional training pre-positioned you to read the text this way? Has church, denomination, university, or sermon culture already framed the text before you arrived?')+'</div></div>';
+    html+='<div class="guide-box"><div class="guide-label">2</div><div class="guide-box-title">'+(ko?'문화적 선이해':'Cultural Pre-Belief')+'</div><div class="guide-text">'+(ko?'질문: 체면, 조화, 효율, 성공, 정서적 안정 같은 문화적 가치가 당신의 읽기를 어떻게 밀고 가는가?':'Question: how are values such as respectability, harmony, efficiency, success, or emotional stability pressing your reading?')+'</div></div>';
+    html+='<div class="guide-box"><div class="guide-label">3</div><div class="guide-box-title">'+(ko?'신체적 선이해':'Somatic Pre-Belief')+'</div><div class="guide-text">'+(ko?'질문: 이 본문을 읽을 때 몸에서 먼저 일어나는 것은 무엇인가? 긴장, 수치, 안도, 분노, 회피 욕구는 해석의 주변이 아니라 일부입니다.':'Question: what arises in the body first — tension, shame, relief, anger, withdrawal? These are not outside interpretation; they are part of it.')+'</div></div>';
+    html+='<div class="guide-box"><div class="guide-label">4</div><div class="guide-box-title">'+(ko?'신학적 선이해':'Theological Pre-Belief')+'</div><div class="guide-text">'+(ko?'질문: 조직신학, 교리문답, 전통적 언어가 본문의 운동을 앞질러 버리는가? 예언서를 너무 빨리 익숙한 교리 언어로 번역하고 있는가?':'Question: is systematic theology or inherited doctrinal language arriving before the text’s own movement? Are you translating prophecy into familiar doctrine too quickly?')+'</div></div>';
+    html+='<div class="guide-box full"><div class="guide-label">'+(ko?'현재 본문의 주요 압력 지점':'Current UB_W6 Pressure Point')+'</div><div class="guide-text">'+(ko?'지금 선택한 본문에서 가장 흔한 왜곡은 '+pressure.ko+' 입니다. 이 왜곡이 어디서 왔는지 4가지 하위 범주 중 하나 이상으로 명명해 보세요.':'For the current text the most common reduction is '+pressure.en+'. Name which of the four sub-types is most responsible for that reduction in your own reading.')+'</div></div>';
+    html+='</div>';
+  }
+
+  if(state.guide==='formation'){
+    html+='<div class="guide-callout gold"><div class="guide-label">'+(ko?'형성 증거':'Formation Evidence')+'</div><div class="guide-text">'+(ko?'형성은 수업 중 감동으로 주장되는 것이 아니라, 시간이 지난 뒤 독립 읽기에서 관찰될 때 증명됩니다. 아래 비계는 후기예언서 학습이 실제로 학생의 읽기 습관을 바꾸는지를 확인하기 위한 최소 지표입니다.':'Formation is not proved by intensity in class, but by what becomes observable later in independent reading. The scaffold below gives minimum indicators for whether Week 6 is changing how students read prophetic texts.')+'</div></div>';
+    html+='<div class="guide-grid">';
+    html+='<div class="guide-box"><div class="guide-label">Week 1</div><div class="guide-box-title">'+(ko?'즉시 관찰 가능한 증거':'Immediate Evidence')+'</div><ul class="guide-list"><li>'+(ko?'주석 답을 보기 전에 낯섦 질문 하나를 스스로 던진다.':'The student asks at least one strangeness question before looking at the scholarly answer.')+'</li><li>'+(ko?'핵심어 하나를 본문 어휘와 구분해 말할 수 있다.':'The student can distinguish a key interpretive word from the text’s actual wording.')+'</li></ul></div>';
+    html+='<div class="guide-box"><div class="guide-label">Week 3</div><div class="guide-box-title">'+(ko?'전이 중간 지표':'Transfer-in-Progress')+'</div><ul class="guide-list"><li>'+(ko?'새로운 예언 본문에서도 먼저 WHERE–WHO–WHAT을 잡으려 한다.':'On a new prophetic text, the student spontaneously begins with WHERE–WHO–WHAT.')+'</li><li>'+(ko?'자기 문장의 출처를 하나 이상 명명할 수 있다.':'The student can name at least one source funding the sentence they produced.')+'</li></ul></div>';
+    html+='<div class="guide-box"><div class="guide-label">Week 6</div><div class="guide-box-title">'+(ko?'형성의 강한 증거':'Stronger Evidence of Formation')+'</div><ul class="guide-list"><li>'+(ko?'AI를 보기 전에 먼저 자기 읽기와 저항을 기록한다.':'The student records their own encounter and resistance before consulting AI.')+'</li><li>'+(ko?'예언서를 개인 경건 언어로만 축소하지 않고 구조적·공적 층위를 함께 본다.':'The student no longer reduces prophecy to private devotion alone, but sees structural and public dimensions.')+'</li></ul></div>';
+    html+='<div class="guide-box"><div class="guide-label">'+(ko?'증거가 아닌 것':'Not Evidence')+'</div><ul class="guide-list"><li>'+(ko?'수업 중 감동을 많이 받았다는 말':'Saying the class felt powerful or moving')+'</li><li>'+(ko?'정답을 빨리 맞히는 것':'Getting the right answer quickly')+'</li><li>'+(ko?'AI 요약을 더 세련되게 반복하는 것':'Repeating AI summaries more elegantly')+'</li></ul></div>';
+    html+='<div class="guide-box full"><div class="guide-label">'+(ko?'UB_W6 형성 목표':'UB_W6 Formation Goal')+'</div><div class="guide-text">'+(ko?'후기예언서 수업의 핵심 형성 목표는 당신이 아모스, 호세아, 이사야, 예레미야, 에스겔을 더 많이 아는 것만이 아닙니다. 더 중요한 것은, 이후의 다른 본문을 읽을 때도 자기 선이해를 의심하고, 낯섦을 먼저 듣고, 주해를 현재의 구조적 현실에 책임 있게 연결하는 해석 습관을 갖게 되는 것입니다.':'The formation goal of Week 6 is not simply that you know more about Amos, Hosea, Isaiah, Jeremiah, or Ezekiel. The deeper goal is that you develop the habit of suspecting your own prior assumptions, hearing strangeness first, and turning exegesis into accountable interpretation in present structural reality.')+'</div></div>';
+    html+='</div>';
+  }
+
+  if(state.guide==='aibrake'){
+    html+='<div class="guide-callout red"><div class="guide-label">'+(ko?'AI 브레이크':'AI Brake')+'</div><div class="guide-text">'+(ko?'이 규칙들은 학생이 자기 읽기와 주해, 해석을 시작하기도 전에 AI가 대신해 버리지 않도록 멈추게 하는 규칙입니다. 핵심 원리는 단순합니다: AI가 학생의 첫 만남을 대신해서는 안 됩니다.':'These are student rules for when to pause AI so that your own reading, exegesis, and interpretation are not replaced before they begin. The core principle is simple: AI must not take the place of your first encounter with the text.')+'</div></div>';
+    html+='<div class="guide-grid">';
+    html+='<div class="guide-box"><div class="guide-label">Rule 1</div><div class="guide-box-title">'+(ko?'낯섦 전에 AI 금지':'No AI Before Strangeness')+'</div><div class="guide-text">'+(ko?'현재 본문을 읽고 최소 한 줄의 낯섦 메모를 적기 전에는 AI에게 의미를 묻지 마세요.':'Do not ask AI what the text means until you have written at least one line naming what felt strange or resistant.')+'</div></div>';
+    html+='<div class="guide-box"><div class="guide-label">Rule 2</div><div class="guide-box-title">'+(ko?'출처 명명을 AI에 맡기지 말 것':'Do Not Outsource Source Naming')+'</div><div class="guide-text">'+(ko?'당신의 문장이 본문, 교리, 문화, AI, 선이해 중 어디에서 왔는지 먼저 스스로 말해야 합니다.':'You must first name for yourself whether your sentence came from the text, doctrine, culture, AI, or prior assumption.')+'</div></div>';
+    html+='<div class="guide-box"><div class="guide-label">Rule 3</div><div class="guide-box-title">'+(ko?'혼란을 즉시 AI로 봉합하지 말 것':'Do Not Use AI to Seal Over Confusion')+'</div><div class="guide-text">'+(ko?'막막함은 실패가 아니라 형성의 현장입니다. 먼저 그 혼란을 붙잡고, 그룹과 비교하고, 한 문장으로 정직하게 적어 보세요.':'Confusion is not failure but the site of formation. Sit with it, compare it with your group, and write one honest sentence about it before trying to erase it with AI.')+'</div></div>';
+    html+='<div class="guide-box"><div class="guide-label">Rule 4</div><div class="guide-box-title">'+(ko?'최종 문장을 AI가 먼저 써주게 하지 말 것':'No AI-Generated Final Sentence First')+'</div><div class="guide-text">'+(ko?'당신의 한 문장은 당신의 위치를 드러내야 합니다. 처음부터 AI 문장을 제출하면 위치가 지워집니다.':'Your one-sentence claim must reveal where you were standing. If AI writes it first, that location disappears.')+'</div></div>';
+    html+='<div class="guide-box full"><div class="guide-label">'+(ko?'허용되는 AI 사용':'Permitted AI Use')+'</div><div class="guide-text">'+(ko?'자기 메모 작성 후 비교용으로 사용하기, 수업 후 자기 문장과 학문적 답을 대조하기, 히브리어/배경 정보 확인하기는 허용됩니다. 그러나 현재 본문 '+tx.ref_ko+'에 대해 "정답이 뭐예요?"라고 먼저 묻는 방식은 이 앱의 형성 논리를 무너뜨립니다.':'AI may be used after you have written your own note, for comparison after class, or for checking background and language details. But asking, “What is the answer?” for '+tx.ref_en+' before you have inhabited the text yourself breaks the formative logic of this app.')+'</div></div>';
+    html+='</div>';
+  }
+
+  html+='</div>';
+  return html;
+}
+
+function setGuide(g){state.guide=g;render();}
+
+function render(){
+var tx=currentText();
+var ko=isKo();
+var stageLabels=ko?stages_ko:stages_en;
+var propColor='var(--'+state.prophet+')';
+var html='';
+html+='<div class="text-header" style="background:'+propColor+'">';
+html+='<div class="text-ref">'+(ko?tx.ref_ko:tx.ref_en)+'</div>';
+html+='<div class="text-why">'+(ko?tx.why_ko:tx.why_en)+'</div>';
+html+='</div>';
+html+=renderGuide();
+html+='<div class="stages">';
+stageLabels.forEach(function(s,i){
+var cls='stage-btn'+(i===state.stage?' active':'');
+html+='<button class="'+cls+'" onclick="goStage('+i+')">'+s+'</button>';
+});
+html+='</div>';
+var s=state.stage;
+html+='<div class="timer"><span class="timer-dot"></span><span>'+(ko?'예상 시간':'Estimated time')+': '+timings[s]+'</span></div>';
+if(s===0){
+html+='<div class="card"><div class="card-label">'+(ko?'역사적 맥락':'Historical Context')+'</div><div class="card-text">'+(ko?tx.hist_ko:tx.hist_en)+'</div></div>';
+html+='<div class="card"><div class="card-label">'+(ko?'문학적 맥락':'Literary Context')+'</div><div class="card-text">'+(ko?tx.lit_ko:tx.lit_en)+'</div></div>';
+html+='<div class="card"><div class="card-label">'+(ko?'문화적 맥락':'Cultural Context')+'</div><div class="card-text">'+(ko?tx.cult_ko:tx.cult_en)+'</div></div>';
+}
+if(s===1){
+html+='<div class="q-card"><div class="q-label">'+(ko?'주요 석의 질문':'Core Exegetical Question')+'</div>';
+html+='<div class="q-text">'+(ko?tx.exe_ko:tx.exe_en)+'</div>';
+html+='<textarea id="studentAns" placeholder="'+(ko?'여기에 당신의 해석을 써보세요...':'Write your own interpretation first...')+'" rows="4"></textarea>';
+html+='<button class="reveal-btn" onclick="toggleReveal(\'exe\')">'+(ko?'동료와 비교한 후 답 보기':'Show scholarly answer after comparing with group')+'</button>';
+html+='<div class="answer-reveal" id="rev-exe">'+(ko?tx.exeA_ko:tx.exeA_en)+'</div>';
+html+='</div>';
+html+='<div class="q-card"><div class="q-label">'+(ko?'해석학적 질문':'Hermeneutical Question')+'</div>';
+html+='<div class="q-text">'+(ko?tx.her_ko:tx.her_en)+'</div>';
+html+='<textarea id="studentHer" placeholder="'+(ko?'당신의 맥락에서 이것은...':'In your context, this means...')+'" rows="3"></textarea>';
+html+='<button class="reveal-btn" onclick="toggleReveal(\'her\')">'+(ko?'해석학적 답 보기':'Show hermeneutical answer')+'</button>';
+html+='<div class="answer-reveal" id="rev-her">'+(ko?tx.herA_ko:tx.herA_en)+'</div>';
+html+='</div>';
+}
+if(s===2){
+html+='<div style="margin-bottom:14px"><div class="triad-row">';
+html+='<div class="triad-box where"><div class="triad-key">WHERE</div><div class="triad-val">'+(ko?tx.triad.where_ko:tx.triad.where_en)+'</div></div>';
+html+='<div class="triad-box who"><div class="triad-key">WHO</div><div class="triad-val">'+(ko?tx.triad.who_ko:tx.triad.who_en)+'</div></div>';
+html+='<div class="triad-box what"><div class="triad-key">WHAT</div><div class="triad-val">'+(ko?tx.triad.what_ko:tx.triad.what_en)+'</div></div>';
+html+='</div></div>';
+html+='<div class="card"><div class="card-label">'+(ko?'소그룹 토론 질문':'Small Group Discussion')+'</div>';
+html+='<div class="card-text" style="margin-bottom:10px">'+(ko?'이 WHERE-WHO-WHAT 지도를 당신의 초기 읽기와 비교하세요. 어디가 가장 달랐나요? 무엇이 가장 놀라웠나요?':'Compare this WHERE-WHO-WHAT map with your initial reading. Where did it differ most? What surprised you?')+'</div>';
+html+='<textarea style="background:var(--surface2);color:var(--ink);border-color:var(--border)" placeholder="'+(ko?'그룹 토론에서 나온 것...':'What emerged in group discussion...')+'" rows="3"></textarea>';
+html+='</div>';
+}
+if(s===3){
+tx.vocab.forEach(function(v,i){
+html+='<div class="vocab-card"><div class="vocab-word">'+(ko?v.w_en.split('/')[1]||v.w_en:v.w_en)+'</div>';
+html+='<div class="vocab-risk">'+(ko?v.r_ko:v.r_en)+'</div></div>';
+});
+html+='<div class="card" style="margin-top:14px"><div class="card-label">'+(ko?'출처 탐문':'Source Probe')+'</div>';
+html+='<div class="card-text" style="margin-bottom:10px">'+(ko?'당신의 읽기를 형성하고 있는 출처를 명명하세요:':'Name what source is shaping your reading:')+'</div>';
+var sources_en=['The text itself','AI / internet','Systematic theology','Church doctrine','Pre-belief / assumption','Personal formation history','Korean cultural framework'];
+var sources_ko=['본문 자체','AI / 인터넷','조직신학','교회 교리','선-믿음 / 가정','개인 형성 역사','한국 문화적 틀'];
+var sources=ko?sources_ko:sources_en;
+html+='<div style="display:flex;flex-wrap:wrap;gap:6px">';
+sources.forEach(function(s){html+='<button onclick="toggleSource(this)" style="padding:4px 10px;border:1px solid var(--border);background:var(--surface2);border-radius:999px;cursor:pointer;font:inherit;font-size:11px;color:var(--ink2);transition:.15s">'+s+'</button>';});
+html+='</div></div>';
+}
+if(s===4){
+tx.contexts.forEach(function(c,i){
+html+='<div class="context-card" id="ctx-'+i+'" onclick="selectCtx('+i+')">';
+html+='<div class="context-label">'+(ko?c.l_ko:c.l_en)+'</div>';
+html+='<div class="context-prompt">'+(ko?c.p_ko:c.p_en)+'</div>';
+html+='<textarea class="context-input" onclick="event.stopPropagation()" placeholder="'+(ko?'이 시나리오에서 어떤 운동이 요청되는가?':'What movement is being asked in this scenario?')+'" rows="3"></textarea>';
+html+='</div>';
+});
+}
+html+='<div class="nav-row">';
+html+='<button class="nav-btn" onclick="goStage('+(state.stage-1)+')" '+(state.stage===0?'disabled':'')+'>← '+(ko?'이전':'Previous')+'</button>';
+html+='<button class="nav-btn primary" onclick="goStage('+(state.stage+1)+')" '+(state.stage===4?'disabled':'')+''+(ko?'':'')+'>'+(ko?'다음':'Next')+' →</button>';
+html+='</div>';
+document.getElementById('mainArea').innerHTML=html;
+if(state.stage===1){
+var prevAns=state.revealed[state.prophet+state.day+'exe'];
+if(prevAns){var el=document.getElementById('rev-exe');if(el)el.classList.add('show');}
+var prevHer=state.revealed[state.prophet+state.day+'her'];
+if(prevHer){var elh=document.getElementById('rev-her');if(elh)elh.classList.add('show');}
+}
+}
+
+function goStage(n){if(n<0||n>4)return;state.stage=n;render();}
+function selectProphet(p){state.prophet=p;state.stage=0;document.querySelectorAll('.prophet-btn').forEach(function(b){b.classList.remove('active');});event.currentTarget.classList.add('active');render();}
+function selectDay(d){state.day=d;state.stage=0;document.getElementById('dayTue').classList.toggle('active',d==='tuesday');document.getElementById('dayFri').classList.toggle('active',d==='friday');render();}
+function setLang(l){state.lang=l;document.body.classList.toggle('ko',l==='ko');document.getElementById('btnEn').classList.toggle('active',l==='en');document.getElementById('btnKo').classList.toggle('active',l==='ko');render();}
+function toggleReveal(type){var el=document.getElementById('rev-'+type);if(el){el.classList.toggle('show');state.revealed[state.prophet+state.day+type]=el.classList.contains('show');}}
+function toggleSource(btn){btn.style.background=btn.style.background===''||btn.style.background==='var(--surface2)'?'var(--accent)':'var(--surface2)';btn.style.color=btn.style.color==='rgb(247, 245, 240)'||btn.style.color==="#f7f5f0"?'var(--ink2)':'#f7f5f0';btn.style.borderColor=btn.style.borderColor==='var(--accent)'?'var(--border)':'var(--accent)';}
+function selectCtx(i){document.querySelectorAll('.context-card').forEach(function(c,j){c.classList.toggle('selected',j===i);});}
+render();
+</script>
+</body>
+</html>
